@@ -33,159 +33,319 @@
 
     <style>
         :root{
-            --nav:#0c2a3d;
-            --nav2:#0a2232;
-            --bg:#f4f7fb;
-            --card:#ffffff;
-            --muted:#708090;
-            --text:#13202c;
-            --shadow: 0 10px 20px rgba(12,42,61,0.10);
-            --radius:14px;
-            --accent1:#0b3f52;
-            --accent2:#0f5f7a;
-            --accent3:#1b9aaa;
-            --accent4:#d28c2c;
-        }
-        *{box-sizing:border-box;font-family: Arial, Helvetica, sans-serif;}
-        body{margin:0;background:var(--bg);color:var(--text);}
+            --bg1:#061722;
+            --bg2:#0a2a3a;
+            --glass: rgba(255,255,255,0.10);
+            --glass2: rgba(255,255,255,0.06);
+            --stroke: rgba(255,255,255,0.16);
 
-        .layout{display:flex;min-height:100vh;}
+            --text:#eaf6ff;
+            --muted: rgba(234,246,255,0.72);
+
+            --shadow: 0 24px 70px rgba(0,0,0,0.45);
+            --shadow2: 0 10px 25px rgba(0,0,0,0.28);
+            --radius:18px;
+
+            --a1:#1fd1f9;
+            --a2:#b621fe;
+            --a3:#2ad3a0;
+            --a4:#ffd36a;
+
+            --sidebarW: 270px;
+        }
+
+        *{ box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+        body{
+            margin:0;
+            color: var(--text);
+            min-height:100vh;
+
+            /* Resort background image + gradients */
+            background:
+                radial-gradient(900px 520px at 10% 10%, rgba(31,209,249,0.25), transparent 60%),
+                radial-gradient(900px 520px at 90% 85%, rgba(182,33,254,0.22), transparent 60%),
+                linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+                url("images/resort-bg.jpg") center/cover no-repeat fixed;
+        }
+
+        /* floating glow blobs */
+        .blob{
+            position: fixed;
+            width: 520px; height: 520px;
+            filter: blur(70px);
+            opacity: 0.42;
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events:none;
+            animation: float 10s ease-in-out infinite;
+        }
+        .b1{ left:-180px; top:-160px; background: rgba(31,209,249,0.9); }
+        .b2{ right:-170px; bottom:-200px; background: rgba(182,33,254,0.9); animation-delay:-2.5s; }
+        .b3{ right: 12%; top:-170px; width: 420px; height: 420px; background: rgba(255,211,106,0.75); animation-delay:-4.5s; }
+
+        @keyframes float{
+            0%,100%{ transform: translate(0,0) scale(1); }
+            50%{ transform: translate(18px,-14px) scale(1.05); }
+        }
+
+        .layout{
+            position: relative;
+            z-index: 1;
+            display:flex;
+            min-height:100vh;
+        }
 
         /* Sidebar */
         .sidebar{
-            width:260px;
-            background: linear-gradient(180deg, var(--nav), var(--nav2));
-            color:#fff;
-            padding:18px 14px;
-            position:sticky;
-            top:0;
-            height:100vh;
+            width: var(--sidebarW);
+            padding: 18px 14px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+
+            background: linear-gradient(180deg, rgba(6,23,34,0.72), rgba(10,42,58,0.55));
+            border-right: 1px solid rgba(255,255,255,0.10);
+            backdrop-filter: blur(14px);
         }
+
         .brand{
             display:flex;
             align-items:center;
             gap:10px;
-            padding:10px 10px 18px;
-            font-weight:700;
-            font-size:20px;
+            padding: 10px 10px 18px;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 0.2px;
         }
-        .brand i{color:#f3b04a;}
-        .nav{margin-top:8px;}
+        .brand .logo{
+            width: 40px; height: 40px;
+            border-radius: 14px;
+            display:flex; align-items:center; justify-content:center;
+            background: linear-gradient(135deg, rgba(31,209,249,0.85), rgba(182,33,254,0.75));
+            box-shadow: var(--shadow2);
+        }
+        .brand i{ color: #07131b; font-size: 18px; }
+
+        .nav{ margin-top: 6px; }
         .nav a{
             display:flex;
             align-items:center;
             gap:12px;
-            padding:12px 12px;
-            border-radius:12px;
-            color:#dbe7f1;
+            padding: 12px 12px;
+            border-radius: 14px;
+            color: rgba(234,246,255,0.84);
             text-decoration:none;
-            margin:6px 6px;
-            font-weight:600;
+            margin: 8px 6px;
+            font-weight: 800;
+            border: 1px solid transparent;
+            transition: 0.18s ease;
         }
-        .nav a:hover{background:rgba(255,255,255,0.08);}
-        .nav a.active{background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.08);}
-        .nav i{width:18px;text-align:center;}
+        .nav a:hover{
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.10);
+            transform: translateY(-1px);
+        }
+        .nav a.active{
+            background: linear-gradient(90deg, rgba(31,209,249,0.22), rgba(182,33,254,0.16));
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+        .nav i{ width:18px; text-align:center; color: rgba(234,246,255,0.92); }
 
         .sidebar-footer{
             position:absolute;
             left:14px; right:14px;
             bottom:16px;
+            padding: 12px 12px;
+
             display:flex;
             align-items:center;
             justify-content:space-between;
-            color:#b7c9d9;
-            font-size:13px;
-            padding:10px 12px;
-            border-top:1px solid rgba(255,255,255,0.10);
+            gap: 10px;
+
+            border-radius: 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(234,246,255,0.78);
+            font-size: 13px;
         }
         .logout{
-            color:#b7c9d9;
+            color: rgba(234,246,255,0.82);
             text-decoration:none;
-            padding:8px 10px;
-            border-radius:10px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.12);
+            transition: 0.18s ease;
         }
-        .logout:hover{background:rgba(255,255,255,0.08);}
+        .logout:hover{
+            background: rgba(255,255,255,0.10);
+            transform: translateY(-1px);
+        }
 
         /* Main */
-        .main{flex:1;padding:26px 26px 40px;}
-        .title{
-            font-size:38px;
-            font-weight:800;
-            margin:0;
-            letter-spacing:0.2px;
-        }
-        .subtitle{
-            margin-top:8px;
-            color:var(--muted);
-            font-size:16px;
+        .main{
+            flex: 1;
+            padding: 26px 26px 44px;
         }
 
-        /* Cards */
+        .topbar{
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .title{
+            font-size: 38px;
+            font-weight: 950;
+            margin: 0;
+            letter-spacing: 0.2px;
+        }
+        .subtitle{
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .chip{
+            display:flex;
+            align-items:center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.14);
+            color: rgba(234,246,255,0.86);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        /* KPI Cards */
         .cards{
-            margin-top:22px;
+            margin-top: 18px;
             display:grid;
             grid-template-columns: repeat(4, minmax(180px, 1fr));
-            gap:18px;
+            gap: 18px;
         }
+
         .card{
-            background:var(--card);
-            border-radius:var(--radius);
-            padding:18px 18px;
-            box-shadow: var(--shadow);
-            border:1px solid rgba(12,42,61,0.06);
+            border-radius: var(--radius);
+            padding: 18px 18px;
+            min-height: 98px;
+
+            background: linear-gradient(180deg, var(--glass), var(--glass2));
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: var(--shadow2);
+            backdrop-filter: blur(14px);
+
             display:flex;
             justify-content:space-between;
             align-items:center;
-            min-height:92px;
+            overflow:hidden;
+            position: relative;
         }
-        .card .label{color:var(--muted);font-weight:700;font-size:14px;}
-        .card .value{margin-top:10px;font-weight:900;font-size:22px;}
+
+        .card::before{
+            content:"";
+            position:absolute;
+            inset:-2px;
+            background:
+                radial-gradient(260px 160px at 20% 25%, rgba(31,209,249,0.18), transparent 60%),
+                radial-gradient(260px 160px at 85% 80%, rgba(182,33,254,0.16), transparent 60%);
+            z-index:0;
+        }
+        .card > *{ position:relative; z-index:1; }
+
+        .card .label{ color: rgba(234,246,255,0.72); font-weight: 800; font-size: 13px; }
+        .card .value{ margin-top: 10px; font-weight: 950; font-size: 24px; letter-spacing: 0.2px; }
+
         .iconBox{
-            width:44px;height:44px;border-radius:12px;
-            display:flex;align-items:center;justify-content:center;
-            color:#fff;font-size:18px;
+            width: 46px; height: 46px;
+            border-radius: 16px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size: 18px;
+            color:#07131b;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25);
         }
-        .b1{background:var(--accent1);}
-        .b2{background:var(--accent2);}
-        .b3{background:var(--accent3);}
-        .b4{background:var(--accent4);}
+        .c1{ background: linear-gradient(135deg, rgba(31,209,249,0.95), rgba(31,209,249,0.55)); }
+        .c2{ background: linear-gradient(135deg, rgba(182,33,254,0.92), rgba(182,33,254,0.55)); }
+        .c3{ background: linear-gradient(135deg, rgba(42,211,160,0.92), rgba(42,211,160,0.55)); }
+        .c4{ background: linear-gradient(135deg, rgba(255,211,106,0.95), rgba(255,211,106,0.55)); }
 
         /* Table card */
         .bigCard{
-            margin-top:22px;
-            background:var(--card);
-            border-radius:var(--radius);
-            box-shadow: var(--shadow);
-            border:1px solid rgba(12,42,61,0.06);
-            padding:18px;
-        }
-        .bigTitle{font-size:22px;font-weight:900;margin:6px 0 14px;}
-        table{width:100%;border-collapse:collapse;}
-        th,td{padding:12px 10px;text-align:left;}
-        th{color:var(--muted);font-size:13px;border-bottom:1px solid rgba(0,0,0,0.06);}
-        td{border-bottom:1px solid rgba(0,0,0,0.06);font-weight:600;}
-        .rescode{color:#13202c;font-weight:900;}
-        .room{color:#586b7b;font-weight:700;}
-        .date{color:#586b7b;font-weight:700;}
+            margin-top: 22px;
+            border-radius: var(--radius);
+            padding: 18px;
 
+            background: linear-gradient(180deg, var(--glass), var(--glass2));
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: var(--shadow2);
+            backdrop-filter: blur(14px);
+        }
+
+        .bigTop{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .bigTitle{
+            font-size: 22px;
+            font-weight: 950;
+            margin: 0;
+        }
+
+        table{ width:100%; border-collapse:collapse; overflow:hidden; border-radius: 14px; }
+        th, td{ padding: 12px 10px; text-align:left; }
+        th{
+            color: rgba(234,246,255,0.72);
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        td{
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            font-weight: 700;
+            color: rgba(234,246,255,0.90);
+        }
+        tbody tr:hover{
+            background: rgba(255,255,255,0.06);
+        }
+
+        .rescode{ font-weight: 950; color: rgba(234,246,255,0.98); }
+        .room, .date{ color: rgba(234,246,255,0.78); font-weight: 800; }
+
+        /* Responsive */
         @media (max-width: 1100px){
-            .cards{grid-template-columns: repeat(2, 1fr);}
+            .cards{ grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 720px){
-            .sidebar{display:none;}
-            .cards{grid-template-columns: 1fr;}
-            .main{padding:18px;}
+            .sidebar{ display:none; }
+            .cards{ grid-template-columns: 1fr; }
+            .main{ padding: 18px; }
         }
     </style>
 </head>
 
 <body>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
 <div class="layout">
 
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="brand">
-            <i class="fa-solid fa-water"></i>
+            <div class="logo"><i class="fa-solid fa-water"></i></div>
             <span>Ocean View</span>
         </div>
 
@@ -205,8 +365,18 @@
 
     <!-- Main -->
     <main class="main">
-        <h1 class="title">Welcome back, <%= username %></h1>
-        <div class="subtitle">Ocean View Resort — Reservation Dashboard</div>
+
+        <div class="topbar">
+            <div>
+                <h1 class="title">Welcome back, <%= username %></h1>
+                <div class="subtitle">Ocean View Resort — Reservation Dashboard</div>
+            </div>
+
+            <div class="chip">
+                <i class="fa-solid fa-sparkles"></i>
+                Live Overview
+            </div>
+        </div>
 
         <section class="cards">
             <div class="card">
@@ -214,7 +384,7 @@
                     <div class="label">Total Reservations</div>
                     <div class="value"><%= totalReservations %></div>
                 </div>
-                <div class="iconBox b1"><i class="fa-regular fa-calendar"></i></div>
+                <div class="iconBox c1"><i class="fa-regular fa-calendar"></i></div>
             </div>
 
             <div class="card">
@@ -222,7 +392,7 @@
                     <div class="label">Active Today</div>
                     <div class="value"><%= activeToday %></div>
                 </div>
-                <div class="iconBox b2"><i class="fa-solid fa-users"></i></div>
+                <div class="iconBox c2"><i class="fa-solid fa-users"></i></div>
             </div>
 
             <div class="card">
@@ -230,7 +400,7 @@
                     <div class="label">Room Types Available</div>
                     <div class="value"><%= roomTypes %></div>
                 </div>
-                <div class="iconBox b3"><i class="fa-solid fa-building"></i></div>
+                <div class="iconBox c3"><i class="fa-solid fa-building"></i></div>
             </div>
 
             <div class="card">
@@ -238,12 +408,18 @@
                     <div class="label">Est. Revenue</div>
                     <div class="value">$<%= String.format("%,.0f", estRevenue) %></div>
                 </div>
-                <div class="iconBox b4"><i class="fa-solid fa-dollar-sign"></i></div>
+                <div class="iconBox c4"><i class="fa-solid fa-dollar-sign"></i></div>
             </div>
         </section>
 
         <section class="bigCard">
-            <div class="bigTitle">Recent Reservations</div>
+            <div class="bigTop">
+                <h2 class="bigTitle">Recent Reservations</h2>
+                <div class="chip" style="padding:8px 12px;">
+                    <i class="fa-regular fa-clock"></i>
+                    Updated from server
+                </div>
+            </div>
 
             <table>
                 <thead>
@@ -260,7 +436,7 @@
                     if (recent.isEmpty()) {
                 %>
                     <tr>
-                        <td colspan="5" style="color:#708090;font-weight:700;">No reservations found.</td>
+                        <td colspan="5" style="color: rgba(234,246,255,0.72); font-weight: 800;">No reservations found.</td>
                     </tr>
                 <%
                     } else {
