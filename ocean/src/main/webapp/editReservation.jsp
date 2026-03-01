@@ -6,13 +6,32 @@
         return;
     }
 
-    String msg = (String) request.getAttribute("msg");
-    String err = (String) request.getAttribute("err");
+    // Data from servlet
+    Object idObj = request.getAttribute("id");
+    String id = (idObj == null) ? "" : String.valueOf(idObj);
+
+    String res_code = (String) request.getAttribute("res_code");
+    String guest_name = (String) request.getAttribute("guest_name");
+    String address = (String) request.getAttribute("address");
+    String phone = (String) request.getAttribute("phone");
+    String room_name = (String) request.getAttribute("room_name");
+    String check_in = (String) request.getAttribute("check_in");
+    String check_out = (String) request.getAttribute("check_out");
+    Object totalObj = request.getAttribute("total_amount");
+    String total_amount = (totalObj == null) ? "0" : String.valueOf(totalObj);
+
+    if (res_code == null) res_code = "";
+    if (guest_name == null) guest_name = "";
+    if (address == null) address = "";
+    if (phone == null) phone = "";
+    if (room_name == null) room_name = "";
+    if (check_in == null) check_in = "";
+    if (check_out == null) check_out = "";
 %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ocean View - Add Reservation</title>
+    <title>Ocean View - Edit Reservation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet"
@@ -85,7 +104,7 @@
             border:1px solid rgba(12,42,61,0.06);
             box-shadow: var(--shadow);
             padding:18px;
-            width: min(820px, 100%);
+            width: min(860px, 100%);
         }
 
         .row{display:grid;grid-template-columns: 1fr 1fr;gap:14px;}
@@ -100,8 +119,8 @@
             font-size:15px;
         }
 
+        .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
         .btn{
-            margin-top:16px;
             border:none;
             border-radius:10px;
             padding:12px 14px;
@@ -111,16 +130,21 @@
             background: linear-gradient(90deg, #0b3f52, var(--accent));
             cursor:pointer;
         }
-        .btn:hover{filter:brightness(1.03);}
-
-        .msg{
-            margin-top:12px;
-            padding:10px 12px;
+        .btn2{
+            border:1px solid rgba(12,42,61,0.16);
             border-radius:10px;
-            font-weight:800;
+            padding:12px 14px;
+            font-weight:900;
+            font-size:15px;
+            background:#fff;
+            cursor:pointer;
+            text-decoration:none;
+            color:#203040;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
         }
-        .ok{background:#e8fff2;border:1px solid #b8f3cf;color:#116b39;}
-        .bad{background:#ffecec;border:1px solid #f4b4b4;color:#8f1d1d;}
+        .btn2:hover{background:#f7fafc;}
 
         @media(max-width:920px){
             .row{grid-template-columns:1fr;}
@@ -144,8 +168,8 @@
 
         <nav class="nav">
             <a href="DashboardServlet"><i class="fa-solid fa-table-columns"></i>Dashboard</a>
-            <a class="active" href="addReservation.jsp"><i class="fa-solid fa-user-plus"></i>Add Reservation</a>
-            <a href="ReservationsServlet"><i class="fa-solid fa-list"></i>Reservations</a>
+            <a href="addReservation.jsp"><i class="fa-solid fa-user-plus"></i>Add Reservation</a>
+            <a class="active" href="ReservationsServlet"><i class="fa-solid fa-list"></i>Reservations</a>
             <a href="billCalculator.jsp"><i class="fa-solid fa-receipt"></i>Bill Calculator</a>
             <a href="help.jsp"><i class="fa-regular fa-circle-question"></i>Help</a>
         </nav>
@@ -160,65 +184,66 @@
 
     <!-- Main -->
     <main class="main">
-        <h1 class="pageTitle">Add Reservation</h1>
-        <div class="subtitle">Create a new reservation record</div>
+        <h1 class="pageTitle">Edit Reservation</h1>
+        <div class="subtitle">Update reservation details</div>
 
         <div class="formCard">
-            <% if (msg != null) { %>
-                <div class="msg ok"><i class="fa-solid fa-circle-check"></i> <%= msg %></div>
-            <% } %>
-            <% if (err != null) { %>
-                <div class="msg bad"><i class="fa-solid fa-triangle-exclamation"></i> <%= err %></div>
-            <% } %>
+            <form action="UpdateReservationServlet" method="post">
+                <input type="hidden" name="id" value="<%= id %>">
 
-            <form action="AddReservationServlet" method="post">
                 <div class="row">
                     <div>
-                        <label>Reservation Code (RES-001)</label>
-                        <input class="input" type="text" name="res_code" placeholder="RES-003" required>
+                        <label>Reservation Code</label>
+                        <input class="input" type="text" name="res_code" value="<%= res_code %>" required>
                     </div>
                     <div>
                         <label>Guest Name</label>
-                        <input class="input" type="text" name="guest_name" placeholder="Kamal Perera" required>
+                        <input class="input" type="text" name="guest_name" value="<%= guest_name %>" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div>
                         <label>Address</label>
-                        <input class="input" type="text" name="address" placeholder="No 10, Galle Road, Colombo" required>
+                        <input class="input" type="text" name="address" value="<%= address %>" required>
                     </div>
                     <div>
                         <label>Phone</label>
-                        <input class="input" type="text" name="phone" placeholder="+94 7X XXX XXXX" required>
+                        <input class="input" type="text" name="phone" value="<%= phone %>" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div>
                         <label>Room Name</label>
-                        <input class="input" type="text" name="room_name" placeholder="Deluxe / Ocean View Suite" required>
+                        <input class="input" type="text" name="room_name" value="<%= room_name %>" required>
                     </div>
                     <div>
                         <label>Total Amount ($)</label>
-                        <input class="input" type="number" step="0.01" name="total_amount" placeholder="900" required>
+                        <input class="input" type="number" step="0.01" name="total_amount" value="<%= total_amount %>" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div>
-                        <label>Check-in Date</label>
-                        <input class="input" type="date" name="check_in" required>
+                        <label>Check-in</label>
+                        <input class="input" type="date" name="check_in" value="<%= check_in %>" required>
                     </div>
                     <div>
-                        <label>Check-out Date</label>
-                        <input class="input" type="date" name="check_out" required>
+                        <label>Check-out</label>
+                        <input class="input" type="date" name="check_out" value="<%= check_out %>" required>
                     </div>
                 </div>
 
-                <button class="btn" type="submit">
-                    <i class="fa-solid fa-plus"></i> Save Reservation
-                </button>
+                <div class="btnRow">
+                    <button class="btn" type="submit">
+                        <i class="fa-regular fa-floppy-disk"></i> Update Reservation
+                    </button>
+
+                    <a class="btn2" href="ReservationsServlet">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </a>
+                </div>
             </form>
         </div>
     </main>

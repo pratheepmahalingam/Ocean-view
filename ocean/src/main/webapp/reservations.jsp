@@ -226,7 +226,11 @@
                     for (Map<String, String> r : list) {
             %>
                 <div class="resCard">
-                    <span class="chip"><%= r.get("res_code") %></span>
+                    <<a href="EditReservationServlet?id=<%= r.get("id") %>"
+   style="position:absolute; right:52px; top:14px; color:#647789; padding:8px; border-radius:10px;"
+   title="Edit">
+    <i class="fa-regular fa-pen-to-square"></i>
+</a>>
 
                     <!-- Delete button -->
                     <form action="DeleteReservationServlet" method="post" style="display:inline;">
