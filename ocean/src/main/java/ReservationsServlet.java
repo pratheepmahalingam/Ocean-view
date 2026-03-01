@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
@@ -10,7 +10,7 @@ import jakarta.servlet.http.*;
 public class ReservationsServlet extends HttpServlet {
 
     private static final String DB_URL =
-            "jdbc:mysql://localhost:3306/oceanviewresort?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+        "jdbc:mysql://localhost:3306/oceanviewresort?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
 
@@ -18,56 +18,38 @@ public class ReservationsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("username") == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
+        List<Map<String,String>> list = new ArrayList<>();
 
-        String q = request.getParameter("q");
-        if (q == null) q = "";
-        String like = "%" + q.trim() + "%";
+        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
 
-        List<Map<String, String>> list = new ArrayList<>();
+            String sql = "SELECT r.id,r.res_code,r.guest_name,r.address,r.phone," +
+                         "rt.type_name,r.check_in,r.check_out " +
+                         "FROM reservations r " +
+                         "JOIN room_types rt ON r.room_type_id=rt.id " +
+                         "ORDER BY r.id DESC";
 
-        String sql =
-                "SELECT id, res_code, guest_name, address, phone, room_name, check_in, check_out " +
-                "FROM reservations " +
-                "WHERE (? = '' OR guest_name LIKE ? OR res_code LIKE ?) " +
-                "ORDER BY id DESC";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-                 PreparedStatement ps = con.prepareStatement(sql)) {
-
-                ps.setString(1, q.trim());
-                ps.setString(2, like);
-                ps.setString(3, like);
-
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        Map<String, String> r = new HashMap<>();
-                        r.put("id", String.valueOf(rs.getInt("id")));
-                        r.put("res_code", rs.getString("res_code"));
-                        r.put("guest_name", rs.getString("guest_name"));
-                        r.put("address", rs.getString("address"));
-                        r.put("phone", rs.getString("phone"));
-                        r.put("room_name", rs.getString("room_name"));
-                        r.put("check_in", rs.getDate("check_in").toString());
-                        r.put("check_out", rs.getDate("check_out").toString());
-                        list.add(r);
-                    }
-                }
+            while(rs.next()){
+                Map<String,String> m = new HashMap<>();
+                m.put("id",rs.getString("id"));
+                m.put("res_code",rs.getString("res_code"));
+                m.put("guest_name",rs.getString("guest_name"));
+                m.put("address",rs.getString("address"));
+                m.put("phone",rs.getString("phone"));
+                m.put("room_type",rs.getString("type_name"));
+                m.put("check_in",rs.getString("check_in"));
+                m.put("check_out",rs.getString("check_out"));
+                list.add(m);
             }
 
-        } catch (Exception e) {
+        } catch(Exception e){
             e.printStackTrace();
         }
 
-        request.setAttribute("q", q);
-        request.setAttribute("reservations", list);
-        request.getRequestDispatcher("reservations.jsp").forward(request, response);
+        request.setAttribute("reservations",list);
+        request.getRequestDispatcher("reservations.jsp")
+               .forward(request,response);
     }
 }

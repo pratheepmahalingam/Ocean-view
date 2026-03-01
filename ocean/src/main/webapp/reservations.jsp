@@ -226,11 +226,11 @@
                     for (Map<String, String> r : list) {
             %>
                 <div class="resCard">
-                    <<a href="EditReservationServlet?id=<%= r.get("id") %>"
+                    <a href="EditReservationServlet?id=<%= r.get("id") %>"
    style="position:absolute; right:52px; top:14px; color:#647789; padding:8px; border-radius:10px;"
    title="Edit">
     <i class="fa-regular fa-pen-to-square"></i>
-</a>>
+</a>
 
                     <!-- Delete button -->
                     <form action="DeleteReservationServlet" method="post" style="display:inline;">
@@ -246,7 +246,7 @@
                     <div class="line"><%= r.get("address") %></div>
                     <div class="line"><%= r.get("phone") %></div>
 
-                    <div class="room"><%= r.get("room_name") %></div>
+                    <div class="room"><%= r.get("room_type") %></div>
                     <div class="dates"><%= r.get("check_in") %> → <%= r.get("check_out") %></div>
                 </div>
             <%
