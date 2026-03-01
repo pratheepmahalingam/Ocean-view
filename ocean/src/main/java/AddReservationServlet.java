@@ -40,14 +40,15 @@ public class AddReservationServlet extends HttpServlet {
 
             try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
 
-                // ✅ Load room types for dropdown
+                // ✅ Load room types from database
                 List<Map<String, String>> types = new ArrayList<>();
                 try (PreparedStatement ps = con.prepareStatement(
-                        "SELECT type_name, price_per_night FROM room_types ORDER BY id");
+                        "SELECT id, type_name, price_per_night FROM room_types ORDER BY id");
                      ResultSet rs = ps.executeQuery()) {
 
                     while (rs.next()) {
                         Map<String, String> m = new HashMap<>();
+                        m.put("id", String.valueOf(rs.getInt("id")));
                         m.put("type_name", rs.getString("type_name"));
                         m.put("price", String.format("%.2f", rs.getDouble("price_per_night")));
                         types.add(m);
@@ -90,12 +91,14 @@ public class AddReservationServlet extends HttpServlet {
         String guestName = safe(request.getParameter("guest_name"));
         String address = safe(request.getParameter("address"));
         String phone = safe(request.getParameter("phone")).replaceAll("\\D+", "");
-        String roomType = safe(request.getParameter("room_type"));  // ✅ NAME ONLY
+        String roomTypeIdStr = safe(request.getParameter("room_type_id")); // ✅ ID
         String checkInStr = safe(request.getParameter("check_in"));
         String checkOutStr = safe(request.getParameter("check_out"));
 
         if (resCode.isEmpty() || guestName.isEmpty() || address.isEmpty() ||
-                phone.isEmpty() || roomType.isEmpty() || checkInStr.isEmpty() || checkOutStr.isEmpty()) {
+                phone.isEmpty() || roomTypeIdStr.isEmpty() ||
+                checkInStr.isEmpty() || checkOutStr.isEmpty()) {
+
             request.setAttribute("err", "All fields are required!");
             doGet(request, response);
             return;
@@ -107,23 +110,32 @@ public class AddReservationServlet extends HttpServlet {
             return;
         }
 
-        LocalDate in, out;
+        int roomTypeId;
         try {
-            in = LocalDate.parse(checkInStr);
-            out = LocalDate.parse(checkOutStr);
-        } catch (Exception e) {
-            request.setAttribute("err", "Invalid date!");
+            roomTypeId = Integer.parseInt(roomTypeIdStr);
+        } catch (Exception ex) {
+            request.setAttribute("err", "Please select a valid room type!");
             doGet(request, response);
             return;
         }
 
-        if (!out.isAfter(in)) {
+        LocalDate inDate, outDate;
+        try {
+            inDate = LocalDate.parse(checkInStr);
+            outDate = LocalDate.parse(checkOutStr);
+        } catch (Exception e) {
+            request.setAttribute("err", "Invalid date format!");
+            doGet(request, response);
+            return;
+        }
+
+        if (!outDate.isAfter(inDate)) {
             request.setAttribute("err", "Check-out must be after check-in!");
             doGet(request, response);
             return;
         }
 
-        long nights = ChronoUnit.DAYS.between(in, out);
+        long nights = ChronoUnit.DAYS.between(inDate, outDate);
         if (nights < 1) nights = 1;
 
         try {
@@ -131,38 +143,44 @@ public class AddReservationServlet extends HttpServlet {
 
             try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
 
-                // ✅ Get room price by room type name
+                // ✅ Get room name + price using ID
                 double price = 0.0;
-                try (PreparedStatement pricePs = con.prepareStatement(
-                        "SELECT price_per_night FROM room_types WHERE type_name=? LIMIT 1")) {
-                    pricePs.setString(1, roomType);
-                    try (ResultSet rs = pricePs.executeQuery()) {
-                        if (rs.next()) price = rs.getDouble(1);
+                String roomName = null;
+
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT type_name, price_per_night FROM room_types WHERE id=? LIMIT 1")) {
+                    ps.setInt(1, roomTypeId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            roomName = rs.getString("type_name");
+                            price = rs.getDouble("price_per_night");
+                        }
                     }
                 }
 
-                if (price <= 0) {
-                    request.setAttribute("err", "Room price not found!");
+                if (roomName == null || price <= 0) {
+                    request.setAttribute("err", "Room type not found or invalid price!");
                     doGet(request, response);
                     return;
                 }
 
                 double total = price * nights;
 
-                // ✅ Insert using room_type NAME only
+                // ✅ Insert reservation (matches common schema: room_type_id + room_name)
                 String sql = "INSERT INTO reservations " +
-                        "(res_code, guest_name, address, phone, room_type, check_in, check_out, total_amount) " +
-                        "VALUES (?,?,?,?,?,?,?,?)";
+                        "(res_code, guest_name, address, phone, room_type_id, room_name, check_in, check_out, total_amount) " +
+                        "VALUES (?,?,?,?,?,?,?,?,?)";
 
                 try (PreparedStatement insert = con.prepareStatement(sql)) {
                     insert.setString(1, resCode);
                     insert.setString(2, guestName);
                     insert.setString(3, address);
                     insert.setString(4, phone);
-                    insert.setString(5, roomType);
-                    insert.setDate(6, java.sql.Date.valueOf(in));
-                    insert.setDate(7, java.sql.Date.valueOf(out));
-                    insert.setDouble(8, total);
+                    insert.setInt(5, roomTypeId);
+                    insert.setString(6, roomName);
+                    insert.setDate(7, java.sql.Date.valueOf(inDate));
+                    insert.setDate(8, java.sql.Date.valueOf(outDate));
+                    insert.setDouble(9, total);
                     insert.executeUpdate();
                 }
 

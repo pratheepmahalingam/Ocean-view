@@ -7,6 +7,12 @@
         return;
     }
 
+    // ✅ Prevent direct access to JSP (force servlet)
+    if (request.getAttribute("roomTypes") == null) {
+        response.sendRedirect("AddReservationServlet");
+        return;
+    }
+
     String msg = (String) request.getAttribute("msg");
     String err = (String) request.getAttribute("err");
 
@@ -78,8 +84,10 @@
         <div class="brand"><i class="fa-solid fa-water"></i><span>Ocean View</span></div>
         <nav class="nav">
             <a href="DashboardServlet"><i class="fa-solid fa-table-columns"></i>Dashboard</a>
-            <!-- ✅ must open through servlet -->
+
+            <!-- ✅ FIXED LINK -->
             <a class="active" href="AddReservationServlet"><i class="fa-solid fa-user-plus"></i>Add Reservation</a>
+
             <a href="ReservationsServlet"><i class="fa-solid fa-list"></i>Reservations</a>
             <a href="billCalculator.jsp"><i class="fa-solid fa-receipt"></i>Bill Calculator</a>
             <a href="help.jsp"><i class="fa-regular fa-circle-question"></i>Help</a>
@@ -127,11 +135,10 @@
                 <div class="row">
                     <div>
                         <label>Room Type</label>
-                        <!-- ✅ send room type NAME only -->
-                        <select class="input" name="room_type" required>
+                        <select class="input" name="room_type_id" required>
                             <option value="">-- Select Room Type --</option>
                             <% for (Map<String, String> rt : roomTypes) { %>
-                                <option value="<%= rt.get("type_name") %>">
+                                <option value="<%= rt.get("id") %>">
                                     <%= rt.get("type_name") %> ( $<%= rt.get("price") %> / night )
                                 </option>
                             <% } %>
@@ -165,24 +172,12 @@
     const phoneError = document.getElementById("phoneError");
 
     phoneInput.addEventListener("input", () => {
-        phoneInput.value = phoneInput.value.replace(/\D/g, "");
+        phoneInput.value = phoneInput.value.replace(/\\D/g, "");
         if (phoneInput.value.length > 10) {
             phoneInput.value = phoneInput.value.slice(0, 10);
             phoneError.style.display = "block";
         } else {
             phoneError.style.display = "none";
-        }
-    });
-
-    phoneInput.addEventListener("keydown", (e) => {
-        const allowed = ["Backspace","Delete","ArrowLeft","ArrowRight","Tab"];
-        if (allowed.includes(e.key)) return;
-
-        if (!/^\d$/.test(e.key)) { e.preventDefault(); return; }
-
-        if (phoneInput.value.length >= 10) {
-            e.preventDefault();
-            phoneError.style.display = "block";
         }
     });
 
