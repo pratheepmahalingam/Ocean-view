@@ -129,6 +129,15 @@ public class AddReservationServlet extends HttpServlet {
             return;
         }
 
+        // ✅ NEW: check-in must be today or future
+        LocalDate today = LocalDate.now();
+        if (inDate.isBefore(today)) {
+            request.setAttribute("err", "Check-in date cannot be in the past. Please select today or a future date!");
+            doGet(request, response);
+            return;
+        }
+
+        // ✅ Existing rule: check-out must be after check-in
         if (!outDate.isAfter(inDate)) {
             request.setAttribute("err", "Check-out must be after check-in!");
             doGet(request, response);
@@ -166,7 +175,7 @@ public class AddReservationServlet extends HttpServlet {
 
                 double total = price * nights;
 
-                // ✅ Insert reservation (matches common schema: room_type_id + room_name)
+                // ✅ Insert reservation
                 String sql = "INSERT INTO reservations " +
                         "(res_code, guest_name, address, phone, room_type_id, room_name, check_in, check_out, total_amount) " +
                         "VALUES (?,?,?,?,?,?,?,?,?)";

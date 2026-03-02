@@ -84,10 +84,7 @@
         <div class="brand"><i class="fa-solid fa-water"></i><span>Ocean View</span></div>
         <nav class="nav">
             <a href="DashboardServlet"><i class="fa-solid fa-table-columns"></i>Dashboard</a>
-
-            <!-- ✅ FIXED LINK -->
             <a class="active" href="AddReservationServlet"><i class="fa-solid fa-user-plus"></i>Add Reservation</a>
-
             <a href="ReservationsServlet"><i class="fa-solid fa-list"></i>Reservations</a>
             <a href="billCalculator.jsp"><i class="fa-solid fa-receipt"></i>Bill Calculator</a>
             <a href="help.jsp"><i class="fa-regular fa-circle-question"></i>Help</a>
@@ -107,7 +104,12 @@
             <% if (msg != null) { %><div class="msg ok"><i class="fa-solid fa-circle-check"></i> <%= msg %></div><% } %>
             <% if (err != null) { %><div class="msg bad"><i class="fa-solid fa-triangle-exclamation"></i> <%= err %></div><% } %>
 
-            <form action="AddReservationServlet" method="post" onsubmit="return validatePhone();">
+            <div id="dateError" class="msg bad" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="dateErrorText">Invalid dates.</span>
+            </div>
+
+            <form action="AddReservationServlet" method="post" onsubmit="return validatePhone() && validateDates();">
 
                 <div class="row">
                     <div>
@@ -147,14 +149,14 @@
 
                     <div>
                         <label>Check-in Date</label>
-                        <input class="input" type="date" name="check_in" required>
+                        <input class="input" id="checkIn" type="date" name="check_in" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div>
                         <label>Check-out Date</label>
-                        <input class="input" type="date" name="check_out" required>
+                        <input class="input" id="checkOut" type="date" name="check_out" required>
                     </div>
                     <div></div>
                 </div>
@@ -168,6 +170,7 @@
 </div>
 
 <script>
+    // ✅ PHONE validation
     const phoneInput = document.getElementById("phone");
     const phoneError = document.getElementById("phoneError");
 
@@ -191,6 +194,59 @@
         phoneError.style.display = "none";
         return true;
     }
+
+    // ✅ DATE validation (disable past dates + error messages)
+    const checkIn = document.getElementById("checkIn");
+    const checkOut = document.getElementById("checkOut");
+    const dateError = document.getElementById("dateError");
+    const dateErrorText = document.getElementById("dateErrorText");
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth()+1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    // ✅ Only today + future
+    checkIn.min = todayStr;
+    checkOut.min = todayStr;
+
+    checkIn.addEventListener("change", () => {
+        if (!checkIn.value) return;
+        checkOut.min = checkIn.value;
+        if (checkOut.value && checkOut.value <= checkIn.value) {
+            checkOut.value = "";
+        }
+        hideDateError();
+    });
+
+    checkOut.addEventListener("change", hideDateError);
+
+    function showDateError(msg){
+        dateErrorText.textContent = msg;
+        dateError.style.display = "block";
+    }
+    function hideDateError(){
+        dateError.style.display = "none";
+    }
+
+    function validateDates(){
+        hideDateError();
+
+        if (!checkIn.value || !checkOut.value) return true;
+
+        if (checkIn.value < todayStr){
+            showDateError("Check-in date cannot be in the past. Please select today or a future date.");
+            return false;
+        }
+
+        if (checkOut.value <= checkIn.value){
+            showDateError("Check-out date must be after the check-in date.");
+            return false;
+        }
+        return true;
+    }
 </script>
+
 </body>
 </html>

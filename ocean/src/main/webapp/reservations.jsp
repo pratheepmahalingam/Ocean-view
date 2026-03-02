@@ -11,6 +11,7 @@
     String q = (String) request.getAttribute("q");
     if (q == null) q = "";
 
+    @SuppressWarnings("unchecked")
     List<Map<String, String>> list =
             (List<Map<String, String>>) request.getAttribute("reservations");
     if (list == null) list = new ArrayList<>();
@@ -120,17 +121,21 @@
             box-shadow: var(--shadow);
             padding: 16px 18px;
             position:relative;
-            min-height: 150px;
+            min-height: 160px;
         }
         .chip{
-            display:inline-block;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
             background:#eef3f7;
             color:#2a3a49;
-            font-weight:800;
+            font-weight:900;
             font-size:12px;
             padding: 6px 10px;
             border-radius: 999px;
         }
+        .chip i{ color: #0f5f7a; }
+
         .deleteBtn{
             position:absolute;
             right:14px; top:14px;
@@ -143,6 +148,17 @@
             border-radius:10px;
         }
         .deleteBtn:hover{background:#f1f4f7;color:#d33;}
+
+        .editBtn{
+            position:absolute;
+            right:52px; top:14px;
+            color:#647789;
+            padding:8px;
+            border-radius:10px;
+            text-decoration:none;
+        }
+        .editBtn:hover{background:#f1f4f7;color:#0f5f7a;}
+
         .name{
             margin: 12px 0 8px;
             font-size:22px;
@@ -213,7 +229,7 @@
         <form class="searchWrap" action="ReservationsServlet" method="get">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" name="q" value="<%= q %>"
-                   placeholder="Search by name or reservation #" />
+                   placeholder="Search by reservation code, name, or phone" />
         </form>
 
         <div class="grid">
@@ -226,13 +242,19 @@
                     for (Map<String, String> r : list) {
             %>
                 <div class="resCard">
-                    <a href="EditReservationServlet?id=<%= r.get("id") %>"
-   style="position:absolute; right:52px; top:14px; color:#647789; padding:8px; border-radius:10px;"
-   title="Edit">
-    <i class="fa-regular fa-pen-to-square"></i>
-</a>
 
-                    <!-- Delete button -->
+                    <!-- ✅ RES CODE shown -->
+                    <div class="chip">
+                        <i class="fa-solid fa-hashtag"></i>
+                        <span><%= r.get("res_code") %></span>
+                    </div>
+
+                    <!-- Edit -->
+                    <a class="editBtn" href="EditReservationServlet?id=<%= r.get("id") %>" title="Edit">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </a>
+
+                    <!-- Delete -->
                     <form action="DeleteReservationServlet" method="post" style="display:inline;">
                         <input type="hidden" name="id" value="<%= r.get("id") %>" />
                         <button class="deleteBtn" type="submit" title="Delete"
@@ -241,8 +263,8 @@
                         </button>
                     </form>
 
+                    <!-- Details -->
                     <div class="name"><%= r.get("guest_name") %></div>
-
                     <div class="line"><%= r.get("address") %></div>
                     <div class="line"><%= r.get("phone") %></div>
 
