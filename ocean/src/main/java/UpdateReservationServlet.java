@@ -1,14 +1,11 @@
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 
 @WebServlet("/UpdateReservationServlet")
 public class UpdateReservationServlet extends HttpServlet {
@@ -22,7 +19,6 @@ public class UpdateReservationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // ✅ Session check
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             response.sendRedirect("login.jsp");
@@ -31,47 +27,66 @@ public class UpdateReservationServlet extends HttpServlet {
 
         String idStr = request.getParameter("id");
         String resCode = request.getParameter("res_code");
-        String guestName = request.getParameter("guest_name");
+        String guest = request.getParameter("guest_name");
         String address = request.getParameter("address");
         String phone = request.getParameter("phone");
-        String roomName = request.getParameter("room_name");
-        String checkIn = request.getParameter("check_in");
-        String checkOut = request.getParameter("check_out");
-        String totalAmount = request.getParameter("total_amount");
+        String roomTypeIdStr = request.getParameter("room_type_id");
+        String checkInStr = request.getParameter("check_in");
+        String checkOutStr = request.getParameter("check_out");
 
-        // ✅ basic validation
-        if (isEmpty(idStr) || isEmpty(resCode) || isEmpty(guestName) || isEmpty(address) || isEmpty(phone)
-                || isEmpty(roomName) || isEmpty(checkIn) || isEmpty(checkOut) || isEmpty(totalAmount)) {
+        if (idStr == null || roomTypeIdStr == null || checkInStr == null || checkOutStr == null) {
             response.sendRedirect("ReservationsServlet");
-            return;
-        }
-
-        // ✅ date validation
-        if (checkOut.compareTo(checkIn) <= 0) {
-            // go back to edit page again
-            response.sendRedirect("EditReservationServlet?id=" + idStr);
             return;
         }
 
         try {
             int id = Integer.parseInt(idStr);
+            int roomTypeId = Integer.parseInt(roomTypeIdStr);
+
+            LocalDate in = LocalDate.parse(checkInStr);
+            LocalDate out = LocalDate.parse(checkOutStr);
+
+            long nights = ChronoUnit.DAYS.between(in, out);
+            if (nights < 1) nights = 1;
 
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            String sql = "UPDATE reservations SET res_code=?, guest_name=?, address=?, phone=?, room_name=?, " +
-                         "check_in=?, check_out=?, total_amount=? WHERE id=?";
+            double pricePerNight = 0.0;
+
+            // Get price per night from room_types
+            String priceSql = "SELECT price_per_night FROM room_types WHERE id=? LIMIT 1";
+            try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+                 PreparedStatement ps = con.prepareStatement(priceSql)) {
+                ps.setInt(1, roomTypeId);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        pricePerNight = rs.getDouble("price_per_night");
+                    } else {
+                        response.sendRedirect("ReservationsServlet");
+                        return;
+                    }
+                }
+            }
+
+            double totalAmount = nights * pricePerNight;
+
+            // Update reservation + total_amount
+            String updateSql =
+                    "UPDATE reservations SET res_code=?, guest_name=?, address=?, phone=?, " +
+                    "room_type_id=?, check_in=?, check_out=?, total_amount=? WHERE id=?";
 
             try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-                 PreparedStatement ps = con.prepareStatement(sql)) {
+                 PreparedStatement ps = con.prepareStatement(updateSql)) {
 
-                ps.setString(1, resCode.trim());
-                ps.setString(2, guestName.trim());
-                ps.setString(3, address.trim());
-                ps.setString(4, phone.trim());
-                ps.setString(5, roomName.trim());
-                ps.setDate(6, java.sql.Date.valueOf(checkIn));
-                ps.setDate(7, java.sql.Date.valueOf(checkOut));
-                ps.setDouble(8, Double.parseDouble(totalAmount));
+                ps.setString(1, resCode);
+                ps.setString(2, guest);
+                ps.setString(3, address);
+                ps.setString(4, phone);
+                ps.setInt(5, roomTypeId);
+                ps.setDate(6, java.sql.Date.valueOf(in));
+                ps.setDate(7, java.sql.Date.valueOf(out));
+                ps.setDouble(8, totalAmount);
                 ps.setInt(9, id);
 
                 ps.executeUpdate();
@@ -82,9 +97,5 @@ public class UpdateReservationServlet extends HttpServlet {
         }
 
         response.sendRedirect("ReservationsServlet");
-    }
-
-    private boolean isEmpty(String s) {
-        return s == null || s.trim().isEmpty();
     }
 }

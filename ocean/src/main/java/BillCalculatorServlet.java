@@ -19,27 +19,42 @@ public class BillCalculatorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // ✅ Session protection
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
-        String resCode = request.getParameter("res_code");
-        if (resCode == null || resCode.trim().isEmpty()) {
-            request.setAttribute("err", "Please enter reservation code!");
+        // ✅ user types only digits after 00
+        String q = request.getParameter("q");
+        if (q == null) q = "";
+        q = q.trim().replaceAll("[^0-9]", "");
+
+        request.setAttribute("q", q);
+
+        if (q.isEmpty()) {
+            request.setAttribute("err", "Please enter digits after RES-00 (example: 12).");
             request.getRequestDispatcher("billCalculator.jsp").forward(request, response);
             return;
         }
 
-        resCode = resCode.trim();
-        request.setAttribute("resCode", resCode);
+        // optional: pad 1 digit to 2 digits
+        if (q.length() == 1) q = "0" + q;
+
+        // ✅ final reservation code
+        String resCode = "RES-00" + q;
+        request.setAttribute("resCodeFull", resCode);
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            String sql = "SELECT guest_name, room_name, check_in, check_out, total_amount " +
-                         "FROM reservations WHERE res_code=? LIMIT 1";
+            // ✅ join room_types to always get latest price and calculate updated total
+            String sql =
+                    "SELECT r.guest_name, rt.type_name, rt.price_per_night, r.check_in, r.check_out " +
+                    "FROM reservations r " +
+                    "JOIN room_types rt ON r.room_type_id = rt.id " +
+                    "WHERE r.res_code=? LIMIT 1";
 
             try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
                  PreparedStatement ps = con.prepareStatement(sql)) {
@@ -47,16 +62,28 @@ public class BillCalculatorServlet extends HttpServlet {
                 ps.setString(1, resCode);
 
                 try (ResultSet rs = ps.executeQuery()) {
-
                     if (rs.next()) {
+
                         String guest = rs.getString("guest_name");
-                        String room = rs.getString("room_name");
-                        LocalDate in = rs.getDate("check_in").toLocalDate();
-                        LocalDate out = rs.getDate("check_out").toLocalDate();
-                        double total = rs.getDouble("total_amount");
+                        String room = rs.getString("type_name");
+                        double pricePerNight = rs.getDouble("price_per_night");
+
+                        Date inDate = rs.getDate("check_in");
+                        Date outDate = rs.getDate("check_out");
+
+                        if (inDate == null || outDate == null) {
+                            request.setAttribute("err", "Reservation dates are missing!");
+                            request.getRequestDispatcher("billCalculator.jsp").forward(request, response);
+                            return;
+                        }
+
+                        LocalDate in = inDate.toLocalDate();
+                        LocalDate out = outDate.toLocalDate();
 
                         long nights = ChronoUnit.DAYS.between(in, out);
                         if (nights < 1) nights = 1;
+
+                        double total = nights * pricePerNight;
 
                         request.setAttribute("guest", guest);
                         request.setAttribute("room", room);
@@ -66,7 +93,7 @@ public class BillCalculatorServlet extends HttpServlet {
                         request.setAttribute("total", total);
                         request.setAttribute("msg", "Bill calculated successfully!");
                     } else {
-                        request.setAttribute("err", "Reservation not found!");
+                        request.setAttribute("err", "Reservation not found for " + resCode);
                     }
                 }
             }

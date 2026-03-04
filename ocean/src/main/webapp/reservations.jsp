@@ -27,170 +27,205 @@
 
     <style>
         :root{
-            --nav:#0c2a3d;
-            --nav2:#0a2232;
-            --bg:#f4f7fb;
-            --card:#ffffff;
-            --muted:#708090;
-            --text:#13202c;
-            --shadow: 0 10px 20px rgba(12,42,61,0.10);
-            --radius:14px;
-            --accent:#0f5f7a;
-            --border: rgba(12,42,61,0.10);
+            --bg1:#071a2b;
+            --bg2:#081d33;
+            --panel: rgba(255,255,255,0.10);
+            --panel2: rgba(255,255,255,0.14);
+            --border: rgba(255,255,255,0.18);
+            --text:#eaf2ff;
+            --muted: rgba(234,242,255,0.78);
+            --accent:#26d0ce;
+            --accent2:#6e58ff;
+            --warn:#ff5a73;
+            --shadow: 0 28px 70px rgba(0,0,0,0.45);
+            --radius:18px;
         }
-        *{box-sizing:border-box;font-family: Arial, Helvetica, sans-serif;}
-        body{margin:0;background:var(--bg);color:var(--text);}
-        .layout{display:flex;min-height:100vh;}
+
+        *{ box-sizing:border-box; font-family:"Segoe UI", Arial, sans-serif; }
+
+        body{
+            margin:0;
+            min-height:100vh;
+            color: var(--text);
+            background:
+                radial-gradient(900px 500px at 15% 10%, rgba(38,208,206,0.25), transparent 60%),
+                radial-gradient(900px 500px at 85% 90%, rgba(110,88,255,0.22), transparent 60%),
+                linear-gradient(180deg, var(--bg1), var(--bg2));
+        }
+
+        .layout{ display:flex; min-height:100vh; }
 
         /* Sidebar */
         .sidebar{
-            width:260px;
-            background: linear-gradient(180deg, var(--nav), var(--nav2));
-            color:#fff;
+            width:270px;
             padding:18px 14px;
             position:sticky; top:0; height:100vh;
+            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+            border-right:1px solid rgba(255,255,255,0.10);
+            backdrop-filter: blur(18px);
         }
         .brand{
             display:flex; align-items:center; gap:10px;
             padding:10px 10px 18px;
-            font-weight:700; font-size:20px;
+            font-weight:1000; font-size:20px;
         }
-        .brand i{color:#f3b04a;}
-        .nav{margin-top:8px;}
+        .brand i{ color: var(--accent); }
         .nav a{
             display:flex; align-items:center; gap:12px;
-            padding:12px 12px;
-            border-radius:12px;
-            color:#dbe7f1;
+            padding:12px;
+            border-radius:14px;
+            color: rgba(234,242,255,0.85);
             text-decoration:none;
-            margin:6px 6px;
-            font-weight:600;
+            margin:6px;
+            font-weight:900;
+            border:1px solid transparent;
         }
-        .nav a:hover{background:rgba(255,255,255,0.08);}
-        .nav a.active{background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.08);}
-        .nav i{width:18px;text-align:center;}
+        .nav a:hover{
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.10);
+        }
+        .nav a.active{
+            background: linear-gradient(90deg, rgba(38,208,206,0.20), rgba(110,88,255,0.18));
+            border:1px solid rgba(255,255,255,0.12);
+        }
 
         .sidebar-footer{
             position:absolute; left:14px; right:14px; bottom:16px;
             display:flex; align-items:center; justify-content:space-between;
-            color:#b7c9d9; font-size:13px;
-            padding:10px 12px;
+            color: rgba(234,242,255,0.75);
+            font-size:13px;
+            padding:12px 12px;
             border-top:1px solid rgba(255,255,255,0.10);
         }
-        .logout{color:#b7c9d9;text-decoration:none;padding:8px 10px;border-radius:10px;}
-        .logout:hover{background:rgba(255,255,255,0.08);}
+        .logout{
+            color: rgba(234,242,255,0.80);
+            text-decoration:none;
+            padding:9px 10px;
+            border-radius:12px;
+            border:1px solid rgba(255,255,255,0.12);
+        }
+        .logout:hover{ background: rgba(255,255,255,0.08); }
 
         /* Main */
-        .main{flex:1;padding:26px 26px 40px;}
-        .pageTitle{
-            font-size:40px;
-            font-weight:900;
-            margin:0;
-        }
+        .main{ flex:1; padding:26px 26px 40px; }
+        .pageTitle{ margin:0; font-size:42px; font-weight:1000; }
+        .subtitle{ margin-top:8px; color: var(--muted); font-weight:900; }
 
         /* Search */
         .searchWrap{
-            margin-top: 14px;
-            width: min(560px, 95%);
-            background:#fff;
+            margin-top:16px;
+            width: min(720px, 100%);
+            background: var(--panel);
             border:1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 12px;
+            border-radius: var(--radius);
+            padding:12px 12px;
             display:flex;
             align-items:center;
             gap:10px;
-            box-shadow: 0 8px 18px rgba(12,42,61,0.06);
-        }
-        .searchWrap i{color:#7a8897;}
-        .searchWrap input{
-            border:none; outline:none; width:100%;
-            font-size:15px;
-        }
-
-        /* Cards grid */
-        .grid{
-            margin-top: 24px;
-            display:grid;
-            grid-template-columns: repeat(2, minmax(260px, 1fr));
-            gap: 18px;
-        }
-        .resCard{
-            background:var(--card);
-            border-radius:var(--radius);
-            border:1px solid rgba(12,42,61,0.06);
             box-shadow: var(--shadow);
-            padding: 16px 18px;
+            backdrop-filter: blur(18px);
+        }
+        .searchWrap i{ color: rgba(234,242,255,0.75); }
+        .prefix{
+            font-weight:1000;
+            color:#061018;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            padding:7px 10px;
+            border-radius:12px;
+            white-space:nowrap;
+        }
+        .searchWrap input{
+            width:100%;
+            border:none;
+            outline:none;
+            background: rgba(0,0,0,0.18);
+            border:1px solid rgba(255,255,255,0.12);
+            color:#fff;
+            padding:12px 12px;
+            border-radius:14px;
+            font-weight:1000;
+        }
+        .searchWrap input::placeholder{ color: rgba(255,255,255,0.55); }
+        .searchBtn{
+            border:none;
+            cursor:pointer;
+            padding:12px 14px;
+            border-radius:14px;
+            font-weight:1000;
+            color:#061018;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+        .searchBtn:hover{ filter:brightness(1.05); transform: translateY(-1px); }
+        .searchBtn:active{ transform: translateY(1px); }
+
+        /* Cards */
+        .grid{
+            margin-top:18px;
+            display:grid;
+            grid-template-columns: repeat(2, minmax(280px, 1fr));
+            gap:14px;
+        }
+        .card{
+            background: var(--panel);
+            border:1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            padding:14px 14px;
             position:relative;
-            min-height: 160px;
+            min-height:170px;
         }
         .chip{
             display:inline-flex;
             align-items:center;
             gap:8px;
-            background:#eef3f7;
-            color:#2a3a49;
-            font-weight:900;
-            font-size:12px;
-            padding: 6px 10px;
-            border-radius: 999px;
+            font-weight:1000;
+            color:#061018;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            padding:7px 10px;
+            border-radius:999px;
         }
-        .chip i{ color: #0f5f7a; }
 
-        .deleteBtn{
+        .editBtn, .deleteBtn{
             position:absolute;
-            right:14px; top:14px;
-            border:none;
-            background:transparent;
-            color:#647789;
+            top:12px;
+            padding:10px 12px;
+            border-radius:14px;
+            border:1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.10);
+            color: rgba(234,242,255,0.90);
             cursor:pointer;
-            font-size:16px;
-            padding:8px;
-            border-radius:10px;
-        }
-        .deleteBtn:hover{background:#f1f4f7;color:#d33;}
-
-        .editBtn{
-            position:absolute;
-            right:52px; top:14px;
-            color:#647789;
-            padding:8px;
-            border-radius:10px;
             text-decoration:none;
         }
-        .editBtn:hover{background:#f1f4f7;color:#0f5f7a;}
+        .editBtn{ right:56px; }
+        .deleteBtn{ right:12px; }
+        .editBtn:hover{ background: rgba(38,208,206,0.16); }
+        .deleteBtn:hover{ background: rgba(255,90,115,0.18); }
 
-        .name{
-            margin: 12px 0 8px;
-            font-size:22px;
-            font-weight:900;
-        }
-        .line{
-            color: var(--muted);
-            font-weight:700;
-            margin: 6px 0;
-        }
-        .room{
-            margin-top: 10px;
-            font-weight:900;
-        }
-        .dates{
-            margin-top: 8px;
-            color:#6b7c8d;
-            font-weight:800;
-        }
+        .name{ margin:14px 0 8px; font-size:22px; font-weight:1000; }
+        .line{ color: var(--muted); font-weight:900; margin:6px 0; }
+        .room{ margin-top:10px; font-weight:1000; }
+        .dates{ margin-top:8px; color: rgba(234,242,255,0.80); font-weight:900; }
+
         .empty{
-            margin-top:20px;
+            margin-top:18px;
+            padding:14px;
+            border-radius: var(--radius);
+            background: rgba(255,255,255,0.08);
+            border:1px dashed rgba(255,255,255,0.18);
             color: var(--muted);
-            font-weight:800;
+            font-weight:1000;
         }
 
-        @media (max-width: 980px){
-            .grid{grid-template-columns: 1fr;}
+        @media(max-width: 980px){
+            .grid{ grid-template-columns:1fr; }
         }
-        @media (max-width: 720px){
-            .sidebar{display:none;}
-            .main{padding:18px;}
-            .searchWrap{width:100%;}
+        @media(max-width: 760px){
+            .sidebar{ display:none; }
+            .main{ padding:18px; }
+            .pageTitle{ font-size:34px; }
+            .searchWrap{ flex-wrap:wrap; }
+            .searchBtn{ width:100%; }
         }
     </style>
 </head>
@@ -198,7 +233,6 @@
 <body>
 <div class="layout">
 
-    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="brand">
             <i class="fa-solid fa-water"></i>
@@ -221,15 +255,26 @@
         </div>
     </aside>
 
-    <!-- Main -->
     <main class="main">
         <h1 class="pageTitle">Reservations</h1>
+        <div class="subtitle">Search using reservation digits after RES-00</div>
 
-        <!-- Search Form -->
-        <form class="searchWrap" action="ReservationsServlet" method="get">
+        <!-- ✅ RES-00 fixed search bar -->
+        <form class="searchWrap" action="ReservationsServlet" method="get" autocomplete="off">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" name="q" value="<%= q %>"
-                   placeholder="Search by reservation code, name, or phone" />
+            <span class="prefix">RES-00</span>
+
+            <input type="text"
+                   name="q"
+                   value="<%= q %>"
+                   placeholder="Enter digits (ex: 12 => RES-0012)"
+                   inputmode="numeric"
+                   pattern="[0-9]*"
+                   maxlength="6" />
+
+            <button class="searchBtn" type="submit">
+                <i class="fa-solid fa-arrow-right"></i> Search
+            </button>
         </form>
 
         <div class="grid">
@@ -241,20 +286,16 @@
                 } else {
                     for (Map<String, String> r : list) {
             %>
-                <div class="resCard">
-
-                    <!-- ✅ RES CODE shown -->
+                <div class="card">
                     <div class="chip">
                         <i class="fa-solid fa-hashtag"></i>
                         <span><%= r.get("res_code") %></span>
                     </div>
 
-                    <!-- Edit -->
                     <a class="editBtn" href="EditReservationServlet?id=<%= r.get("id") %>" title="Edit">
                         <i class="fa-regular fa-pen-to-square"></i>
                     </a>
 
-                    <!-- Delete -->
                     <form action="DeleteReservationServlet" method="post" style="display:inline;">
                         <input type="hidden" name="id" value="<%= r.get("id") %>" />
                         <button class="deleteBtn" type="submit" title="Delete"
@@ -263,13 +304,12 @@
                         </button>
                     </form>
 
-                    <!-- Details -->
                     <div class="name"><%= r.get("guest_name") %></div>
                     <div class="line"><%= r.get("address") %></div>
                     <div class="line"><%= r.get("phone") %></div>
 
-                    <div class="room"><%= r.get("room_type") %></div>
-                    <div class="dates"><%= r.get("check_in") %> → <%= r.get("check_out") %></div>
+                    <div class="room"><i class="fa-solid fa-bed"></i> <%= r.get("room_type") %></div>
+                    <div class="dates"><i class="fa-regular fa-calendar"></i> <%= r.get("check_in") %> → <%= r.get("check_out") %></div>
                 </div>
             <%
                     }
@@ -277,7 +317,17 @@
             %>
         </div>
     </main>
-
 </div>
+
+<script>
+    // ✅ digits only
+    const inp = document.querySelector('input[name="q"]');
+    if (inp){
+        inp.addEventListener('input', () => {
+            inp.value = inp.value.replace(/[^0-9]/g, '');
+        });
+    }
+</script>
+
 </body>
 </html>

@@ -34,32 +34,27 @@
 
     <style>
         :root{
-            --bg0:#030B12;
-            --bg1:#061722;
-            --bg2:#0a2a3a;
+            /* ✅ MATCH RESERVATIONS PAGE THEME (ONLY COLORS CHANGED) */
+            --bg1:#071a2b;
+            --bg2:#081d33;
 
-            --glass: rgba(255,255,255,0.10);
-            --glass2: rgba(255,255,255,0.06);
-            --stroke: rgba(255,255,255,0.16);
+            --panel: rgba(255,255,255,0.10);
+            --panel2: rgba(255,255,255,0.14);
+            --border: rgba(255,255,255,0.18);
 
-            --text:#eaf6ff;
-            --muted: rgba(234,246,255,0.72);
+            --text:#eaf2ff;
+            --muted: rgba(234,242,255,0.78);
 
-            --shadow: 0 24px 70px rgba(0,0,0,0.45);
+            --shadow: 0 28px 70px rgba(0,0,0,0.45);
             --shadow2: 0 10px 25px rgba(0,0,0,0.28);
 
-            --radius: 22px;
+            --radius:18px;
 
-            --a1:#1fd1f9;
-            --a2:#b621fe;
-            --a3:#2ad3a0;
-            --a4:#ffd36a;
-            --a5:#ff5c93;
+            --accent:#26d0ce;
+            --accent2:#6e58ff;
+            --warn:#ff5a73;
 
-            --sidebarW: 285px;
-
-            --ok:#2ad3a0;
-            --warn:#ffd36a;
+            --sidebarW: 270px;
         }
 
         *{ box-sizing:border-box; font-family: "Segoe UI", Arial, Helvetica, sans-serif; }
@@ -69,52 +64,25 @@
             color: var(--text);
             min-height:100vh;
             background:
-                radial-gradient(900px 520px at 12% 10%, rgba(31,209,249,0.25), transparent 60%),
-                radial-gradient(900px 520px at 88% 85%, rgba(182,33,254,0.22), transparent 60%),
-                radial-gradient(700px 460px at 70% 10%, rgba(255,92,147,0.16), transparent 65%),
-                linear-gradient(rgba(0,0,0,0.62), rgba(0,0,0,0.62)),
-                url("images/resort-bg.jpg") center/cover no-repeat fixed;
-        }
-
-        /* Subtle animated grain */
-        body::after{
-            content:"";
-            position:fixed;
-            inset:0;
-            pointer-events:none;
-            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
-            mix-blend-mode: overlay;
-            opacity:.12;
-            animation: grain 7s steps(10) infinite;
-            z-index:0;
-        }
-        @keyframes grain{
-            0%,100%{ transform: translate(0,0); }
-            10%{ transform: translate(-2%, -1%); }
-            20%{ transform: translate(-4%, 2%); }
-            30%{ transform: translate(3%, -4%); }
-            40%{ transform: translate(2%, 4%); }
-            50%{ transform: translate(-3%, 2%); }
-            60%{ transform: translate(4%, 0%); }
-            70%{ transform: translate(0%, 3%); }
-            80%{ transform: translate(-2%, -3%); }
-            90%{ transform: translate(2%, 1%); }
+                radial-gradient(900px 500px at 15% 10%, rgba(38,208,206,0.25), transparent 60%),
+                radial-gradient(900px 500px at 85% 90%, rgba(110,88,255,0.22), transparent 60%),
+                linear-gradient(180deg, var(--bg1), var(--bg2));
         }
 
         /* Floating glow blobs */
         .blob{
             position: fixed;
             width: 560px; height: 560px;
-            filter: blur(75px);
+            filter: blur(80px);
             opacity: 0.42;
             border-radius: 50%;
             z-index: 0;
             pointer-events:none;
             animation: float 10s ease-in-out infinite;
         }
-        .b1{ left:-190px; top:-180px; background: rgba(31,209,249,0.9); }
-        .b2{ right:-190px; bottom:-220px; background: rgba(182,33,254,0.9); animation-delay:-2.5s; }
-        .b3{ right: 18%; top:-200px; width: 460px; height: 460px; background: rgba(255,92,147,0.75); animation-delay:-4.5s; }
+        .b1{ left:-190px; top:-180px; background: rgba(38,208,206,0.90); }
+        .b2{ right:-190px; bottom:-220px; background: rgba(110,88,255,0.90); animation-delay:-2.5s; }
+        .b3{ right: 18%; top:-200px; width: 460px; height: 460px; background: rgba(255,90,115,0.55); animation-delay:-4.5s; }
 
         @keyframes float{
             0%,100%{ transform: translate(0,0) scale(1); }
@@ -128,7 +96,7 @@
             min-height:100vh;
         }
 
-        /* Sidebar */
+        /* Sidebar (same layout, only colors match reservations page) */
         .sidebar{
             width: var(--sidebarW);
             padding: 18px 14px;
@@ -136,9 +104,9 @@
             top: 0;
             height: 100vh;
 
-            background: linear-gradient(180deg, rgba(6,23,34,0.78), rgba(10,42,58,0.58));
+            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
             border-right: 1px solid rgba(255,255,255,0.10);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(18px);
         }
 
         .brand{
@@ -151,42 +119,18 @@
             width: 44px; height: 44px;
             border-radius: 16px;
             display:flex; align-items:center; justify-content:center;
-            background: linear-gradient(135deg, rgba(31,209,249,0.95), rgba(182,33,254,0.78));
+            background: linear-gradient(135deg, rgba(38,208,206,0.95), rgba(110,88,255,0.75));
             box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-            position: relative;
-            overflow:hidden;
-        }
-        .brand .logo::after{
-            content:"";
-            position:absolute;
-            inset:-40%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-            transform: rotate(20deg);
-            animation: shine 3.8s ease-in-out infinite;
-        }
-        @keyframes shine{
-            0%{ transform: translateX(-60%) rotate(20deg); opacity:.0; }
-            30%{ opacity:.55; }
-            60%{ opacity:.2; }
-            100%{ transform: translateX(60%) rotate(20deg); opacity:0; }
         }
 
-        .brand i{ color: #07131b; font-size: 18px; position: relative; z-index:2; }
-        .brandText{
-            display:flex;
-            flex-direction:column;
-            line-height:1.1;
-        }
-        .brandText .name{
-            font-weight: 950;
-            font-size: 18px;
-            letter-spacing: 0.2px;
-        }
+        .brand i{ color:#061018; font-size:18px; }
+        .brandText{ display:flex; flex-direction:column; line-height:1.1; }
+        .brandText .name{ font-weight: 1000; font-size: 18px; }
         .brandText .tag{
             margin-top:4px;
             font-size: 12px;
-            color: rgba(234,246,255,0.72);
-            font-weight: 700;
+            color: var(--muted);
+            font-weight: 800;
         }
 
         .nav{ margin-top: 10px; }
@@ -196,23 +140,12 @@
             align-items:center;
             gap:12px;
             padding: 12px 12px;
-            border-radius: 16px;
-            color: rgba(234,246,255,0.86);
+            border-radius: 14px;
+            color: rgba(234,242,255,0.85);
             text-decoration:none;
-            margin: 9px 6px;
-            font-weight: 850;
+            margin: 6px 6px;
+            font-weight: 900;
             border: 1px solid transparent;
-            transition: 0.18s ease;
-            position: relative;
-            overflow:hidden;
-        }
-
-        .nav a::before{
-            content:"";
-            position:absolute;
-            inset:0;
-            background: linear-gradient(90deg, rgba(31,209,249,0.18), rgba(182,33,254,0.12), rgba(255,92,147,0.10));
-            opacity:0;
             transition: 0.18s ease;
         }
 
@@ -221,18 +154,14 @@
             border-color: rgba(255,255,255,0.10);
             transform: translateY(-1px);
         }
-        .nav a:hover::before{ opacity:1; }
 
         .nav a.active{
-            background: linear-gradient(90deg, rgba(31,209,249,0.22), rgba(182,33,254,0.16));
-            border: 1px solid rgba(255,255,255,0.16);
+            background: linear-gradient(90deg, rgba(38,208,206,0.20), rgba(110,88,255,0.18));
+            border: 1px solid rgba(255,255,255,0.12);
             box-shadow: 0 14px 30px rgba(0,0,0,0.28);
         }
-        .nav a.active::before{ opacity:1; }
 
-        .nav i{ width:18px; text-align:center; color: rgba(234,246,255,0.94); position: relative; z-index:1; }
-        .nav span{ position: relative; z-index:1; }
-
+        .nav i{ width:18px; text-align:center; color: rgba(234,242,255,0.94); }
         .sidebar-footer{
             position:absolute;
             left:14px; right:14px;
@@ -247,41 +176,24 @@
             border-radius: 18px;
             background: rgba(255,255,255,0.09);
             border: 1px solid rgba(255,255,255,0.12);
-            color: rgba(234,246,255,0.78);
+            color: rgba(234,242,255,0.78);
             font-size: 13px;
             backdrop-filter: blur(14px);
         }
 
-        .userMini{
-            display:flex;
-            gap:10px;
-            align-items:center;
-            min-width:0;
-        }
+        .userMini{ display:flex; gap:10px; align-items:center; min-width:0; }
         .avatar{
-            width:38px;
-            height:38px;
+            width:38px; height:38px;
             border-radius: 14px;
-            background: linear-gradient(135deg, rgba(42,211,160,0.92), rgba(31,209,249,0.70));
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            color:#07131b;
-            font-weight: 950;
+            background: linear-gradient(135deg, rgba(38,208,206,0.92), rgba(110,88,255,0.70));
+            display:flex; align-items:center; justify-content:center;
+            color:#061018;
+            font-weight: 1000;
             box-shadow: 0 14px 30px rgba(0,0,0,0.25);
             flex: 0 0 auto;
         }
-        .userMini .meta{
-            display:flex;
-            flex-direction:column;
-            gap:2px;
-            min-width:0;
-        }
-        .userMini .meta .small{
-            color: rgba(234,246,255,0.62);
-            font-weight:800;
-            font-size: 12px;
-        }
+        .userMini .meta{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+        .userMini .meta .small{ color: var(--muted); font-weight:800; font-size: 12px; }
         .userMini .meta b{
             white-space:nowrap;
             overflow:hidden;
@@ -291,7 +203,7 @@
         }
 
         .logout{
-            color: rgba(234,246,255,0.88);
+            color: rgba(234,242,255,0.88);
             text-decoration:none;
             padding: 10px 12px;
             border-radius: 16px;
@@ -305,10 +217,7 @@
         }
 
         /* Main */
-        .main{
-            flex: 1;
-            padding: 26px 26px 44px;
-        }
+        .main{ flex: 1; padding: 26px 26px 44px; }
 
         .topbar{
             display:flex;
@@ -321,7 +230,7 @@
 
         .title{
             font-size: 40px;
-            font-weight: 950;
+            font-weight: 1000;
             margin: 0;
             letter-spacing: 0.2px;
         }
@@ -329,7 +238,7 @@
             margin-top: 8px;
             color: var(--muted);
             font-size: 15px;
-            font-weight: 650;
+            font-weight: 850;
         }
 
         .rightTools{
@@ -346,20 +255,13 @@
             gap: 10px;
             padding: 10px 12px;
             border-radius: 999px;
-            background: rgba(255,255,255,0.10);
-            border: 1px solid rgba(255,255,255,0.14);
-            color: rgba(234,246,255,0.86);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            color: rgba(234,242,255,0.86);
             font-size: 13px;
-            font-weight: 850;
+            font-weight: 900;
             backdrop-filter: blur(12px);
-        }
-
-        .chip.pulse i{
-            animation: pulse 1.6s ease-in-out infinite;
-        }
-        @keyframes pulse{
-            0%,100%{ transform: scale(1); opacity:1; }
-            50%{ transform: scale(1.12); opacity:.75; }
+            box-shadow: var(--shadow2);
         }
 
         .btn{
@@ -369,15 +271,15 @@
             padding: 10px 14px;
             border-radius: 999px;
             border: 1px solid rgba(255,255,255,0.14);
-            background: linear-gradient(90deg, rgba(31,209,249,0.18), rgba(182,33,254,0.14));
-            color: rgba(234,246,255,0.92);
+            background: linear-gradient(90deg, rgba(38,208,206,0.20), rgba(110,88,255,0.18));
+            color: rgba(234,242,255,0.92);
             text-decoration:none;
-            font-weight: 900;
+            font-weight: 1000;
             transition: 0.18s ease;
         }
         .btn:hover{
             transform: translateY(-1px);
-            background: linear-gradient(90deg, rgba(31,209,249,0.26), rgba(182,33,254,0.20));
+            filter: brightness(1.06);
         }
 
         /* KPI Cards */
@@ -393,10 +295,10 @@
             padding: 18px 18px;
             min-height: 105px;
 
-            background: linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.06));
-            border: 1px solid rgba(255,255,255,0.14);
+            background: var(--panel);
+            border: 1px solid var(--border);
             box-shadow: var(--shadow2);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(18px);
 
             display:flex;
             justify-content:space-between;
@@ -408,31 +310,19 @@
 
         .card:hover{
             transform: translateY(-2px);
-            border-color: rgba(255,255,255,0.20);
+            border-color: rgba(255,255,255,0.22);
         }
-
-        .card::before{
-            content:"";
-            position:absolute;
-            inset:-2px;
-            background:
-                radial-gradient(260px 160px at 20% 25%, rgba(31,209,249,0.20), transparent 60%),
-                radial-gradient(260px 160px at 85% 80%, rgba(182,33,254,0.18), transparent 60%),
-                radial-gradient(260px 160px at 70% 20%, rgba(255,92,147,0.10), transparent 65%);
-            z-index:0;
-        }
-        .card > *{ position:relative; z-index:1; }
 
         .card .label{
-            color: rgba(234,246,255,0.74);
-            font-weight: 850;
+            color: rgba(234,242,255,0.74);
+            font-weight: 900;
             font-size: 12px;
             letter-spacing: 0.2px;
             text-transform: uppercase;
         }
         .card .value{
             margin-top: 10px;
-            font-weight: 950;
+            font-weight: 1000;
             font-size: 26px;
             letter-spacing: 0.2px;
         }
@@ -440,8 +330,8 @@
         .trend{
             margin-top: 8px;
             font-size: 12px;
-            font-weight: 850;
-            color: rgba(234,246,255,0.78);
+            font-weight: 900;
+            color: rgba(234,242,255,0.78);
             display:flex;
             align-items:center;
             gap:8px;
@@ -449,8 +339,8 @@
         .dot{
             width: 8px; height: 8px;
             border-radius: 999px;
-            background: rgba(42,211,160,0.9);
-            box-shadow: 0 0 0 6px rgba(42,211,160,0.12);
+            background: rgba(38,208,206,0.95);
+            box-shadow: 0 0 0 6px rgba(38,208,206,0.12);
         }
 
         .iconBox{
@@ -460,22 +350,12 @@
             align-items:center;
             justify-content:center;
             font-size: 18px;
-            color:#07131b;
+            color:#061018;
             box-shadow: 0 14px 32px rgba(0,0,0,0.30);
-            position: relative;
-            overflow:hidden;
         }
-        .iconBox::after{
-            content:"";
-            position:absolute;
-            inset:-35%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-            transform: rotate(18deg);
-            opacity: 0.35;
-        }
-        .c1{ background: linear-gradient(135deg, rgba(31,209,249,0.98), rgba(31,209,249,0.55)); }
-        .c2{ background: linear-gradient(135deg, rgba(182,33,254,0.94), rgba(182,33,254,0.55)); }
-        .c3{ background: linear-gradient(135deg, rgba(42,211,160,0.94), rgba(42,211,160,0.55)); }
+        .c1{ background: linear-gradient(135deg, rgba(38,208,206,0.98), rgba(38,208,206,0.55)); }
+        .c2{ background: linear-gradient(135deg, rgba(110,88,255,0.94), rgba(110,88,255,0.55)); }
+        .c3{ background: linear-gradient(135deg, rgba(38,208,206,0.70), rgba(110,88,255,0.55)); }
         .c4{ background: linear-gradient(135deg, rgba(255,211,106,0.98), rgba(255,211,106,0.55)); }
 
         /* Table card */
@@ -484,10 +364,10 @@
             border-radius: var(--radius);
             padding: 18px;
 
-            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
-            border: 1px solid rgba(255,255,255,0.14);
+            background: var(--panel);
+            border: 1px solid var(--border);
             box-shadow: var(--shadow2);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(18px);
         }
 
         .bigTop{
@@ -501,7 +381,7 @@
 
         .bigTitle{
             font-size: 22px;
-            font-weight: 950;
+            font-weight: 1000;
             margin: 0;
         }
 
@@ -512,14 +392,12 @@
             background: rgba(0,0,0,0.10);
         }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
+        table{ width:100%; border-collapse:collapse; }
 
         th, td{ padding: 12px 12px; text-align:left; }
+
         th{
-            color: rgba(234,246,255,0.74);
+            color: rgba(234,242,255,0.74);
             font-size: 12px;
             border-bottom: 1px solid rgba(255,255,255,0.12);
             letter-spacing: 0.35px;
@@ -528,41 +406,18 @@
         }
         td{
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            font-weight: 750;
-            color: rgba(234,246,255,0.92);
-        }
-        tbody tr{
-            transition: 0.16s ease;
-        }
-        tbody tr:hover{
-            background: rgba(255,255,255,0.06);
-        }
-
-        .rescode{
-            font-weight: 950;
-            color: rgba(234,246,255,0.98);
-        }
-        .room, .date{
-            color: rgba(234,246,255,0.78);
             font-weight: 850;
+            color: rgba(234,242,255,0.92);
         }
+        tbody tr{ transition: 0.16s ease; }
+        tbody tr:hover{ background: rgba(255,255,255,0.06); }
 
-        .badge{
-            display:inline-flex;
-            align-items:center;
-            gap:8px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 900;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.08);
-            color: rgba(234,246,255,0.90);
-        }
+        .rescode{ font-weight: 1000; color: rgba(234,242,255,0.98); }
+        .room, .date{ color: rgba(234,242,255,0.78); font-weight: 900; }
 
         .mutedRow{
-            color: rgba(234,246,255,0.72);
-            font-weight: 850;
+            color: rgba(234,242,255,0.72);
+            font-weight: 900;
             padding: 18px 10px;
         }
 
@@ -599,7 +454,7 @@
         <nav class="nav">
             <a class="active" href="DashboardServlet"><i class="fa-solid fa-table-columns"></i><span>Dashboard</span></a>
             <a href="addReservation.jsp"><i class="fa-solid fa-user-plus"></i><span>Add Reservation</span></a>
-            <a href="reservations.jsp"><i class="fa-solid fa-list"></i><span>Reservations</span></a>
+            <a href="ReservationsServlet"><i class="fa-solid fa-list"></i><span>Reservations</span></a>
             <a href="billCalculator.jsp"><i class="fa-solid fa-receipt"></i><span>Bill Calculator</span></a>
             <a href="help.jsp"><i class="fa-regular fa-circle-question"></i><span>Help</span></a>
         </nav>
@@ -628,7 +483,7 @@
             </div>
 
             <div class="rightTools">
-                <div class="chip pulse">
+                <div class="chip">
                     <i class="fa-solid fa-sparkles"></i>
                     Live Overview
                 </div>

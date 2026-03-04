@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
-import jakarta.servlet.*;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
@@ -18,16 +18,32 @@ public class ReservationsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // ✅ Session protection
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("username") == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
         String q = request.getParameter("q");
         if (q == null) q = "";
         q = q.trim();
 
+        // allow only digits (safety)
+        q = q.replaceAll("[^0-9]", "");
+
         List<Map<String, String>> list = new ArrayList<>();
 
-        // ✅ Load driver (helps in some setups)
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (Exception ignored) {}
+        try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (Exception ignored) {}
+
+        boolean hasSearch = !q.isEmpty();
+
+        // digits => res_code = RES-00 + digits (pad 1 digit to 2)
+        String resCodeSearch = null;
+        if (hasSearch) {
+            if (q.length() == 1) q = "0" + q;   // 1 -> 01
+            resCodeSearch = "RES-00" + q;       // 12 -> RES-0012
+        }
 
         String sql =
             "SELECT r.id, r.res_code, r.guest_name, r.address, r.phone, " +
@@ -35,10 +51,8 @@ public class ReservationsServlet extends HttpServlet {
             "FROM reservations r " +
             "JOIN room_types rt ON r.room_type_id = rt.id ";
 
-        boolean hasSearch = !q.isEmpty();
-
         if (hasSearch) {
-            sql += "WHERE r.res_code LIKE ? OR r.guest_name LIKE ? OR r.phone LIKE ? ";
+            sql += "WHERE r.res_code = ? ";
         }
 
         sql += "ORDER BY r.id DESC";
@@ -47,10 +61,7 @@ public class ReservationsServlet extends HttpServlet {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             if (hasSearch) {
-                String like = "%" + q + "%";
-                ps.setString(1, like); // res_code
-                ps.setString(2, like); // guest_name
-                ps.setString(3, like); // phone
+                ps.setString(1, resCodeSearch);
             }
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -72,7 +83,7 @@ public class ReservationsServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        // ✅ send back q to keep in input
+        // ✅ keep q in the input (digits only)
         request.setAttribute("q", q);
         request.setAttribute("reservations", list);
         request.getRequestDispatcher("reservations.jsp").forward(request, response);
