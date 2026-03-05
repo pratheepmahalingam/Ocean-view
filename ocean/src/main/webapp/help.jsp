@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
+    // ✅ Session protection (user must login to use guided mode)
     String username = (String) session.getAttribute("username");
     if (username == null) {
         response.sendRedirect("login.jsp");
@@ -7,10 +8,12 @@
     }
 %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Ocean View - Help</title>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ocean View - Help (Guided Mode)</title>
+
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
@@ -22,370 +25,458 @@
             --card:#ffffff;
             --text:#112232;
             --muted:#6f8090;
+
             --accentA:#1fd1f9;
             --accentB:#b621fe;
+
             --border: rgba(7,31,46,0.10);
-            --shadow: 0 12px 28px rgba(7,31,46,0.10);
-            --radius:16px;
+            --shadow: 0 12px 30px rgba(7,31,46,0.10);
         }
 
         *{ box-sizing:border-box; font-family: "Segoe UI", Arial, sans-serif; }
-        body{ margin:0; background:var(--bg); color:var(--text); }
-        .layout{ display:flex; min-height:100vh; }
 
-        /* Sidebar */
-        .sidebar{
-            width:270px;
-            background: linear-gradient(180deg, var(--nav), var(--nav2));
+        body{
+            margin:0;
+            background: radial-gradient(1200px 500px at 20% 0%, rgba(31,209,249,.20), transparent 60%),
+                        radial-gradient(1000px 500px at 85% 10%, rgba(182,33,254,.18), transparent 60%),
+                        var(--bg);
+            color:var(--text);
+        }
+
+        .topbar{
+            height:64px;
+            background: linear-gradient(135deg, var(--nav), var(--nav2));
             color:#fff;
-            padding:18px 14px;
+            display:flex;
+            align-items:center;
+            padding:0 18px;
+            gap:12px;
             position:sticky;
             top:0;
-            height:100vh;
+            z-index:10;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
         }
 
         .brand{
             display:flex;
             align-items:center;
             gap:10px;
-            padding:10px 10px 18px;
-            font-weight:1000;
-            letter-spacing:0.3px;
-            font-size:20px;
+            font-weight:700;
+            letter-spacing:.2px;
         }
-        .brand i{ color:#1fd1f9; }
+        .brand i{ color: #bff7ff; }
 
-        .nav{ margin-top:10px; }
-        .nav a{
+        .spacer{ flex:1; }
+
+        /* ✅ Back button (go to DashboardServlet) */
+        .back-btn{
             display:flex;
             align-items:center;
-            gap:12px;
-            padding:12px 12px;
-            border-radius:14px;
-            color:#dbe7f1;
-            text-decoration:none;
-            margin:6px 6px;
+            gap:8px;
+            padding:10px 14px;
+            border-radius:999px;
+            border:1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.10);
+            color:#fff;
             font-weight:800;
+            cursor:pointer;
+            text-decoration:none;
+            transition:.15s ease;
+            margin-right: 10px;
         }
-        .nav a:hover{ background:rgba(255,255,255,0.10); }
-        .nav a.active{
-            background:rgba(255,255,255,0.12);
-            border:1px solid rgba(255,255,255,0.12);
+        .back-btn:hover{
+            background: rgba(255,255,255,0.18);
+            transform: translateY(-1px);
         }
-        .nav i{ width:20px; text-align:center; }
 
-        .sidebar-footer{
-            position:absolute;
-            left:14px; right:14px; bottom:16px;
-            padding:12px 12px;
-            border-top:1px solid rgba(255,255,255,0.12);
+        .userchip{
             display:flex;
             align-items:center;
-            justify-content:space-between;
             gap:10px;
-            font-size:13px;
-            color:#b9cbdc;
+            padding:8px 12px;
+            border-radius:999px;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.15);
         }
-        .logout{
-            color:#b9cbdc;
-            text-decoration:none;
-            padding:8px 10px;
-            border-radius:12px;
+        .userchip .dot{
+            width:10px; height:10px; border-radius:50%;
+            background: linear-gradient(135deg, var(--accentA), var(--accentB));
         }
-        .logout:hover{ background:rgba(255,255,255,0.10); }
 
-        /* Main */
-        .main{ flex:1; padding:26px 26px 40px; }
-
-        .pageTitle{
-            margin:0;
-            font-size:40px;
-            font-weight:1000;
-            letter-spacing:0.2px;
-        }
-        .subtitle{
-            margin-top:8px;
-            color:var(--muted);
-            font-weight:800;
+        .wrap{
+            max-width: 1200px;
+            margin: 18px auto 40px;
+            padding: 0 14px;
         }
 
         .grid{
-            margin-top:18px;
             display:grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap:16px;
+            grid-template-columns: 380px 1fr;
+            gap: 16px;
             align-items:start;
         }
 
         .card{
-            background:var(--card);
-            border:1px solid var(--border);
-            border-radius: var(--radius);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             box-shadow: var(--shadow);
-            padding:18px;
-        }
-
-        .sectionTitle{
-            margin:0 0 12px;
-            font-size:18px;
-            font-weight:1000;
-        }
-
-        .helpItem{
-            display:flex;
-            gap:12px;
-            padding:12px 12px;
-            border-radius:14px;
-            border:1px solid rgba(7,31,46,0.07);
-            background:#fbfdff;
-            margin-bottom:12px;
-        }
-        .helpIcon{
-            width:42px;
-            height:42px;
-            border-radius:14px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background: linear-gradient(90deg, rgba(31,209,249,0.18), rgba(182,33,254,0.14));
-            border:1px solid rgba(31,209,249,0.20);
-            font-size:16px;
-            color:#0b3f52;
-            flex:0 0 auto;
-        }
-        .helpItem h3{
-            margin:0;
-            font-size:15px;
-            font-weight:1000;
-        }
-        .helpItem p{
-            margin:6px 0 0;
-            color:var(--muted);
-            font-weight:800;
-            font-size:13px;
-            line-height:1.5;
-        }
-
-        .tip{
-            margin-top:12px;
-            padding:12px 12px;
-            border-radius:14px;
-            background: linear-gradient(90deg, rgba(31,209,249,0.12), rgba(182,33,254,0.10));
-            border:1px solid rgba(31,209,249,0.18);
-            color:#113447;
-            font-weight:900;
-            font-size:13px;
-        }
-
-        /* Screenshot card */
-        .shotWrap{
-            margin-top:12px;
-            border-radius:14px;
             overflow:hidden;
-            border:1px solid rgba(7,31,46,0.10);
-            background:#f7fbff;
-        }
-        .shotHeader{
-            padding:12px 12px;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:10px;
-            font-weight:1000;
-            border-bottom:1px solid rgba(7,31,46,0.08);
-            background:#ffffff;
-        }
-        .shotHeader .tag{
-            font-size:12px;
-            font-weight:1000;
-            padding:6px 10px;
-            border-radius:999px;
-            background: rgba(31,209,249,0.14);
-            border:1px solid rgba(31,209,249,0.18);
-            color:#0b3f52;
-            white-space:nowrap;
         }
 
-        .shotImg{
+        .card-hd{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(31,209,249,0.10), rgba(182,33,254,0.06));
+            font-weight: 700;
+        }
+        .card-hd i{ color: var(--nav); }
+
+        /* Topics list */
+        .topics{ padding: 10px; }
+        .topic{
             width:100%;
-            display:block;
-            max-height:420px;
-            object-fit:cover;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 14px;
+            padding: 12px 12px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            cursor:pointer;
+            transition: .15s ease;
+            margin-bottom: 10px;
+            text-align:left;
         }
-
-        .shotHint{
-            padding:12px 12px;
-            color:var(--muted);
-            font-weight:800;
-            font-size:13px;
-            line-height:1.6;
+        .topic:hover{
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(7,31,46,0.08);
         }
-
-        .quickLinks{
+        .topic.active{
+            border-color: rgba(31,209,249,0.55);
+            background: linear-gradient(90deg, rgba(31,209,249,0.16), rgba(182,33,254,0.10));
+        }
+        .topic .icon{
+            width:44px; height:44px;
+            border-radius: 14px;
             display:grid;
-            gap:10px;
-            margin-top:10px;
+            place-items:center;
+            background: linear-gradient(135deg, rgba(31,209,249,0.20), rgba(182,33,254,0.14));
+            border: 1px solid rgba(7,31,46,0.08);
+            flex: 0 0 auto;
         }
-        .qbtn{
+        .topic .icon i{ color: var(--nav); }
+        .topic .t{ display:flex; flex-direction:column; gap:2px; }
+        .topic .t b{ font-size: 16px; }
+        .topic .t span{ font-size: 13px; color: var(--muted); line-height: 1.25; }
+
+        /* Right content */
+        .content{ padding: 14px 16px 18px; }
+
+        .shot{
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow:hidden;
+            background:#fff;
+        }
+        .shot-hd{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding: 12px 12px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+        }
+        .shot-hd i{ color: var(--nav); }
+        .shot img{
+            display:block;
+            width:100%;
+            height:auto;
+            background:#eef3f8;
+        }
+
+        .steps{
+            padding: 12px 12px 14px;
+            border-top: 1px solid var(--border);
+        }
+        .steps h3{ margin: 0 0 8px; font-size: 18px; }
+        .steps ol{ margin: 0; padding-left: 20px; color: var(--text); }
+        .steps li{ margin: 6px 0; color: var(--text); font-weight: 600; }
+        .steps p{ margin: 10px 0 0; color: var(--muted); font-weight: 600; }
+
+        /* Quick links */
+        .qlinks{ margin-top: 14px; padding: 10px; }
+        .qitem{
             display:flex;
             align-items:center;
             justify-content:space-between;
-            gap:10px;
-            text-decoration:none;
-            padding:12px 12px;
-            border-radius:14px;
-            background:#fbfdff;
-            border:1px solid rgba(7,31,46,0.08);
-            color:var(--text);
-            font-weight:1000;
+            padding: 12px 12px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            background: #fff;
+            cursor:pointer;
+            transition: .15s ease;
         }
-        .qbtn:hover{ background:#f4fbff; }
-        .qbtn span{ color:var(--muted); font-weight:900; font-size:12px; }
+        .qitem:hover{
+            box-shadow: 0 10px 22px rgba(7,31,46,0.08);
+            transform: translateY(-1px);
+        }
+        .qitem .left{
+            display:flex; align-items:center; gap:10px;
+            font-weight: 700;
+        }
+        .qitem .left i{ color: var(--nav); }
+        .qitem small{ color: var(--muted); font-weight: 700; }
 
-        @media(max-width: 980px){
+        @media (max-width: 980px){
             .grid{ grid-template-columns: 1fr; }
-        }
-        @media(max-width: 720px){
-            .sidebar{ display:none; }
-            .main{ padding:18px; }
         }
     </style>
 </head>
 
 <body>
-<div class="layout">
-
-    <!-- Sidebar -->
-    <aside class="sidebar">
+    <div class="topbar">
         <div class="brand">
-            <i class="fa-solid fa-water"></i>
-            <span>Ocean View</span>
+            <i class="fa-solid fa-book-open"></i>
+            <span>Ocean View Resort • Help (Guided Mode)</span>
         </div>
 
-        <nav class="nav">
-            <a href="DashboardServlet"><i class="fa-solid fa-table-columns"></i>Dashboard</a>
-            <a href="AddReservationServlet"><i class="fa-solid fa-user-plus"></i>Add Reservation</a>
-            <a href="ReservationsServlet"><i class="fa-solid fa-list"></i>Reservations</a>
-            <a href="billCalculator.jsp"><i class="fa-solid fa-receipt"></i>Bill Calculator</a>
-            <a class="active" href="help.jsp"><i class="fa-regular fa-circle-question"></i>Help</a>
-        </nav>
+        <div class="spacer"></div>
 
-        <div class="sidebar-footer">
-            <div>Signed in as <b><%= username %></b></div>
-            <a class="logout" href="LogoutServlet" title="Logout">
-                <i class="fa-solid fa-right-from-bracket"></i>
-            </a>
+        <!-- ✅ Back button → DashboardServlet -->
+        <a class="back-btn" href="DashboardServlet">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back
+        </a>
+
+        <div class="userchip" title="Logged in user">
+            <span class="dot"></span>
+            <span><%= username %></span>
         </div>
-    </aside>
+    </div>
 
-    <!-- Main -->
-    <main class="main">
-        <h1 class="pageTitle">Help & System Guide</h1>
-        <div class="subtitle">How to use Ocean View Resort Reservation System</div>
-
+    <div class="wrap">
         <div class="grid">
-            <!-- Left: Guide -->
+
+            <!-- LEFT: Topics (Security/Logout REMOVED) -->
             <div class="card">
-                <div class="sectionTitle"><i class="fa-solid fa-book"></i> User Guide</div>
-
-                <div class="helpItem">
-                    <div class="helpIcon"><i class="fa-solid fa-table-columns"></i></div>
-                    <div>
-                        <h3>Dashboard</h3>
-                        <p>View total reservations, active guests, estimated revenue, and recent bookings.</p>
-                    </div>
+                <div class="card-hd">
+                    <i class="fa-solid fa-list"></i>
+                    <span>Topics</span>
                 </div>
 
-                <div class="helpItem">
-                    <div class="helpIcon"><i class="fa-solid fa-user-plus"></i></div>
-                    <div>
-                        <h3>Add Reservation</h3>
-                        <p>Create reservations with guest details, room type, check-in and check-out dates.</p>
-                    </div>
-                </div>
+                <div class="topics">
+                    <button class="topic active" data-topic="login" type="button">
+                        <div class="icon"><i class="fa-solid fa-right-to-bracket"></i></div>
+                        <div class="t">
+                            <b>Login</b>
+                            <span>How to login and access the system dashboard.</span>
+                        </div>
+                    </button>
 
-                <div class="helpItem">
-                    <div class="helpIcon"><i class="fa-solid fa-list"></i></div>
-                    <div>
-                        <h3>Reservations</h3>
-                        <p>Search by reservation code / name / phone, then edit or delete records.</p>
-                    </div>
-                </div>
+                    <button class="topic" data-topic="dashboard" type="button">
+                        <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="t">
+                            <b>Dashboard</b>
+                            <span>View totals, active today, room types, revenue and recent reservations.</span>
+                        </div>
+                    </button>
 
-                <div class="helpItem">
-                    <div class="helpIcon"><i class="fa-solid fa-pen-to-square"></i></div>
-                    <div>
-                        <h3>Edit Reservation</h3>
-                        <p>Update check-out dates. Bill calculator will show the updated total automatically.</p>
-                    </div>
-                </div>
+                    <button class="topic" data-topic="add" type="button">
+                        <div class="icon"><i class="fa-solid fa-user-plus"></i></div>
+                        <div class="t">
+                            <b>Add Reservation</b>
+                            <span>Create a new booking with guest details, room type and dates.</span>
+                        </div>
+                    </button>
 
-                <div class="helpItem" style="margin-bottom:0;">
-                    <div class="helpIcon"><i class="fa-solid fa-receipt"></i></div>
-                    <div>
-                        <h3>Bill Calculator</h3>
-                        <p>Enter reservation code (RES-xxxx). Total = nights × price per night (updated dates included).</p>
-                    </div>
-                </div>
+                    <button class="topic" data-topic="reservations" type="button">
+                        <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+                        <div class="t">
+                            <b>Reservations (Search / Delete)</b>
+                            <span>Search reservation and delete records if needed.</span>
+                        </div>
+                    </button>
 
-                <div class="tip">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    Security Tip: Always use <b>Logout</b> after work. Session protection keeps your system safe.
+                    <button class="topic" data-topic="bill" type="button">
+                        <div class="icon"><i class="fa-solid fa-receipt"></i></div>
+                        <div class="t">
+                            <b>Bill Calculator</b>
+                            <span>Calculate total bill using reservation code.</span>
+                        </div>
+                    </button>
                 </div>
             </div>
 
-            <!-- Right: Screenshot + Quick links -->
-            <div class="card">
-                <div class="sectionTitle"><i class="fa-solid fa-image"></i> System Screenshot</div>
-
-                <div class="shotWrap">
-                    <div class="shotHeader">
-                        <div><i class="fa-solid fa-camera"></i> Ocean View System Preview</div>
-                        <div class="tag">images/help-system.png</div>
+            <!-- RIGHT: Content -->
+            <div>
+                <div class="card">
+                    <div class="card-hd">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span id="topicTitle">Login</span>
                     </div>
 
-                    <!-- ✅ Put your screenshot here: /images/help-system.png -->
-                    <img class="shotImg" src="images/help-system.png" alt="System Screenshot"
-                         onerror="this.style.display='none'; document.getElementById('noShot').style.display='block';"/>
-
-                    <div id="noShot" class="shotHint" style="display:none;">
-                        Screenshot not found.<br/>
-                        Save your screenshot as <b>images/help-system.png</b> and reload this page.
-                    </div>
-
-                    <div class="shotHint">
-                        How to add screenshot:
-                        <br/>1) Take screenshot (Snipping Tool)
-                        <br/>2) Save as: <b>help-system.png</b>
-                        <br/>3) Put in: <b>WebContent/images/</b> (or <b>webapp/images/</b>)
+                    <div class="content">
+                        <div class="shot">
+                            <div class="shot-hd">
+                                <i class="fa-solid fa-image"></i>
+                                <span>Screenshot</span>
+                            </div>
+                            <img id="topicImage" src="images/help-login.png" alt="Help screenshot"/>
+                            <div class="steps">
+                                <h3 id="stepsTitle">How to login</h3>
+                                <ol id="stepsList">
+                                    <li>Open Home page and click Login.</li>
+                                    <li>Enter your Username and Password.</li>
+                                    <li>Click Sign In.</li>
+                                    <li>If details are correct, you will enter the Dashboard.</li>
+                                </ol>
+                                <p id="stepsNote"></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="sectionTitle" style="margin-top:14px;">
-                    <i class="fa-solid fa-link"></i> Quick Links
+                <!-- Quick links -->
+                <div class="card" style="margin-top:14px;">
+                    <div class="card-hd">
+                        <i class="fa-solid fa-link"></i>
+                        <span>Quick Links</span>
+                    </div>
+                    <div class="qlinks">
+                        <div class="qitem" data-topic="dashboard">
+                            <div class="left"><i class="fa-solid fa-chart-line"></i>Dashboard</div>
+                            <small>View KPIs</small>
+                        </div>
+                        <div class="qitem" data-topic="reservations">
+                            <div class="left"><i class="fa-solid fa-list-check"></i>Reservations</div>
+                            <small>Search / Delete</small>
+                        </div>
+                        <div class="qitem" data-topic="add">
+                            <div class="left"><i class="fa-solid fa-user-plus"></i>Add Reservation</div>
+                            <small>Create Booking</small>
+                        </div>
+                        <div class="qitem" data-topic="bill">
+                            <div class="left"><i class="fa-solid fa-receipt"></i>Bill Calculator</div>
+                            <small>Generate Bill</small>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="quickLinks">
-                    <a class="qbtn" href="DashboardServlet">
-                        <div><i class="fa-solid fa-table-columns"></i> Dashboard</div>
-                        <span>View KPIs</span>
-                    </a>
-
-                    <a class="qbtn" href="ReservationsServlet">
-                        <div><i class="fa-solid fa-list"></i> Reservations</div>
-                        <span>Search / Edit</span>
-                    </a>
-
-                    <a class="qbtn" href="billCalculator.jsp">
-                        <div><i class="fa-solid fa-receipt"></i> Bill Calculator</div>
-                        <span>Calculate Bill</span>
-                    </a>
-                </div>
-
             </div>
+
         </div>
-    </main>
+    </div>
 
-</div>
+    <script>
+        const TOPICS = {
+            login: {
+                title: "Login",
+                img: "images/help-login.png",
+                stepsTitle: "How to login",
+                steps: [
+                    "Open Home page and click Login.",
+                    "Enter your Username and Password.",
+                    "Click Sign In.",
+                    "If details are correct, you will enter the Dashboard."
+                ],
+                note: ""
+            },
+            dashboard: {
+                title: "Dashboard",
+                img: "images/help-dashboard.png",
+                stepsTitle: "How to use Dashboard",
+                steps: [
+                    "Login to enter the Dashboard.",
+                    "View Total Reservations, Active Today, Room Types and Estimated Revenue.",
+                    "Check Recent Reservations list to see latest bookings.",
+                    "Use menu links to go to Add Reservation, Reservations or Bill Calculator."
+                ],
+                note: ""
+            },
+            add: {
+                title: "Add Reservation",
+                img: "images/help-add.png",
+                stepsTitle: "How to add a reservation",
+                steps: [
+                    "Open Add Reservation page.",
+                    "Enter guest details (name, phone, address).",
+                    "Select Room Type and choose Check-in / Check-out dates.",
+                    "Click Save / Add Reservation to create the booking."
+                ],
+                note: ""
+            },
+            reservations: {
+                title: "Reservations (Search / Delete)",
+                img: "images/help-reservations.png",
+                stepsTitle: "How to search / delete reservations",
+                steps: [
+                    "Open Reservations page.",
+                    "Use the search box (ex: reservation code / guest name) and click Search.",
+                    "View matching results in the list.",
+                    "If needed, click Delete to remove a reservation record."
+                ],
+                note: "Tip: Delete only when you are sure the reservation should be removed."
+            },
+            bill: {
+                title: "Bill Calculator",
+                img: "images/help-bill.png",
+                stepsTitle: "How to calculate a bill",
+                steps: [
+                    "Open Bill Calculator page.",
+                    "Enter the Reservation Code.",
+                    "Click Calculate / Generate Bill.",
+                    "System will calculate nights × room price and show the total amount."
+                ],
+                note: ""
+            }
+        };
+
+        const topicTitle = document.getElementById("topicTitle");
+        const topicImage = document.getElementById("topicImage");
+        const stepsTitle = document.getElementById("stepsTitle");
+        const stepsList  = document.getElementById("stepsList");
+        const stepsNote  = document.getElementById("stepsNote");
+
+        function setActiveTopic(key){
+            const t = TOPICS[key];
+            if(!t) return;
+
+            topicTitle.textContent = t.title;
+            topicImage.src = t.img;
+            topicImage.alt = t.title + " screenshot";
+            stepsTitle.textContent = t.stepsTitle;
+
+            stepsList.innerHTML = "";
+            t.steps.forEach(s=>{
+                const li = document.createElement("li");
+                li.textContent = s;
+                stepsList.appendChild(li);
+            });
+
+            stepsNote.textContent = t.note || "";
+
+            document.querySelectorAll(".topic").forEach(btn=>{
+                btn.classList.toggle("active", btn.dataset.topic === key);
+            });
+
+            if (window.innerWidth <= 980) {
+                document.querySelector(".card-hd").scrollIntoView({behavior:"smooth", block:"start"});
+            }
+        }
+
+        document.querySelectorAll(".topic").forEach(btn=>{
+            btn.addEventListener("click", ()=> setActiveTopic(btn.dataset.topic));
+        });
+
+        document.querySelectorAll(".qitem").forEach(item=>{
+            item.addEventListener("click", ()=> setActiveTopic(item.dataset.topic));
+        });
+
+        setActiveTopic("login");
+    </script>
 </body>
 </html>
