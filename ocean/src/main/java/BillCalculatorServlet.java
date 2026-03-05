@@ -15,6 +15,12 @@ public class BillCalculatorServlet extends HttpServlet {
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
 
+    // ✅ Hotel details
+    private static final String HOTEL_NAME = "Ocean View Resort";
+    private static final String HOTEL_ADDRESS = "Galle, Sri Lanka";
+    private static final String HOTEL_PHONE = "+94 0123456789";
+    private static final String HOTEL_EMAIL = "support@oceanviewresort.lk";
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -26,11 +32,19 @@ public class BillCalculatorServlet extends HttpServlet {
             return;
         }
 
-        // ✅ user types only digits after 00
+        String username = (String) session.getAttribute("username");
+        request.setAttribute("username", username);
+
+        // ✅ Hotel info for bill preview
+        request.setAttribute("hotelName", HOTEL_NAME);
+        request.setAttribute("hotelAddress", HOTEL_ADDRESS);
+        request.setAttribute("hotelPhone", HOTEL_PHONE);
+        request.setAttribute("hotelEmail", HOTEL_EMAIL);
+
+        // ✅ digits only after RES-00
         String q = request.getParameter("q");
         if (q == null) q = "";
         q = q.trim().replaceAll("[^0-9]", "");
-
         request.setAttribute("q", q);
 
         if (q.isEmpty()) {
@@ -39,22 +53,21 @@ public class BillCalculatorServlet extends HttpServlet {
             return;
         }
 
-        // optional: pad 1 digit to 2 digits
         if (q.length() == 1) q = "0" + q;
 
-        // ✅ final reservation code
         String resCode = "RES-00" + q;
         request.setAttribute("resCodeFull", resCode);
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // ✅ join room_types to always get latest price and calculate updated total
             String sql =
-                    "SELECT r.guest_name, rt.type_name, rt.price_per_night, r.check_in, r.check_out " +
+                    "SELECT r.res_code, r.guest_name, r.phone, r.address, " +
+                    "       rt.type_name, rt.price_per_night, r.check_in, r.check_out " +
                     "FROM reservations r " +
                     "JOIN room_types rt ON r.room_type_id = rt.id " +
-                    "WHERE r.res_code=? LIMIT 1";
+                    "WHERE r.res_code = ? " +
+                    "LIMIT 1";
 
             try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
                  PreparedStatement ps = con.prepareStatement(sql)) {
@@ -65,6 +78,9 @@ public class BillCalculatorServlet extends HttpServlet {
                     if (rs.next()) {
 
                         String guest = rs.getString("guest_name");
+                        String guestPhone = rs.getString("phone");
+                        String guestAddress = rs.getString("address");
+
                         String room = rs.getString("type_name");
                         double pricePerNight = rs.getDouble("price_per_night");
 
@@ -80,18 +96,27 @@ public class BillCalculatorServlet extends HttpServlet {
                         LocalDate in = inDate.toLocalDate();
                         LocalDate out = outDate.toLocalDate();
 
-                        long nights = ChronoUnit.DAYS.between(in, out);
-                        if (nights < 1) nights = 1;
+                        long nightsL = ChronoUnit.DAYS.between(in, out);
+                        if (nightsL < 1) nightsL = 1;
 
-                        double total = nights * pricePerNight;
+                        int nights = (int) nightsL;
+                        double subtotal = nights * pricePerNight;
+                        double total = subtotal;
 
                         request.setAttribute("guest", guest);
+                        request.setAttribute("guestPhone", guestPhone);
+                        request.setAttribute("guestAddress", guestAddress);
+
                         request.setAttribute("room", room);
                         request.setAttribute("checkIn", in.toString());
                         request.setAttribute("checkOut", out.toString());
-                        request.setAttribute("nights", (int) nights);
+
+                        request.setAttribute("nights", nights);
+                        request.setAttribute("pricePerNight", pricePerNight);
+                        request.setAttribute("subtotal", subtotal);
                         request.setAttribute("total", total);
-                        request.setAttribute("msg", "Bill calculated successfully!");
+
+                        request.setAttribute("msg", "Bill generated successfully!");
                     } else {
                         request.setAttribute("err", "Reservation not found for " + resCode);
                     }
